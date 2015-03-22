@@ -3,7 +3,9 @@
 
 import cairo
 import math
+import os
 import signal
+import yaml
 
 from datetime import datetime
 from gi.repository import Gdk
@@ -20,9 +22,9 @@ class Window(Gtk.Window):
         self.set_title('Pylsner')
 
         screen = self.get_screen()
-        scr_w = screen.get_width()
-        scr_h = screen.get_height()
-        self.set_size_request(scr_w, scr_h)
+        self.width = screen.get_width()
+        self.height = screen.get_height()
+        self.set_size_request(self.width, self.height)
         self.set_position(Gtk.WindowPosition.CENTER)
         rgba = screen.get_rgba_visual()
         self.set_visual(rgba)
@@ -30,13 +32,14 @@ class Window(Gtk.Window):
                                        Gdk.RGBA(0, 0, 0, 0),
                                       )
 
-        self.set_wmclass('pylsnerwidget', 'pylsnerwidget')
+        self.set_wmclass('pylsner', 'pylsner')
         self.set_type_hint(Gdk.WindowTypeHint.DOCK)
         self.stick()
         self.set_keep_below(True)
 
         drawing_area = Gtk.DrawingArea()
         drawing_area.connect('draw', self.redraw)
+        self.refresh_cnt = 0
         self.add(drawing_area)
 
         self.connect('destroy', lambda q: Gtk.main_quit())
@@ -45,104 +48,220 @@ class Window(Gtk.Window):
 
         self.show_all()
 
-    def update(self):
+    def refresh(self, force=False):
+        self.refresh_cnt += 1
+        refresh_list = []
+        if self.refresh_cnt >= 10000:
+            self.refresh_cnt = 0
         for ind in self.indicators:
-            ind.update()
+            if (self.refresh_cnt % ind.metric.refresh_rate == 0) or force:
+                refresh_list.append(ind)
+        for ind in refresh_list:
+            ind.refresh()
+        if refresh_list:
             self.queue_draw()
         return True
 
     def redraw(self, widget, ctx):
+        ctx.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
         for ind in self.indicators:
-            ctx.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
-            red, grn, blu, alf = ind.color
-            ctx.set_source_rgba(red, grn, blu, alf)
-            x, y = ind.pos
-            ctx.arc(x, y, ind.size, ind.start, ind.end)
-            ctx.set_line_width(ind.thick)
-            ctx.stroke()
+            ind.redraw(ctx)
+
+
+def init_indicators(config, window):
+    indicators = []
+    for ind_spec in config['indicators']:
+        name = ind_spec['name']
+        if ind_spec['metric']['plugin'] == 'time':
+            unit = ind_spec['metric']['unit']
+            refresh_rate = ind_spec['metric']['refresh_rate']
+            metric = Time(unit, refresh_rate)
+        if ind_spec['widget']['plugin'] == 'arc':
+            length = ind_spec['widget']['length']
+            width = ind_spec['widget']['width']
+            orientation = ind_spec['widget']['orientation']
+            radius = ind_spec['widget']['radius']
+            widget = Arc(length, width, orientation, radius=radius)
+        position = ind_spec['position']
+        position[0] = (window.width / 2) + position[0]
+        position[1] = (window.height / 2) + position[1]
+        if ind_spec['color']['plugin'] == 'rgba_255':
+            value = ind_spec['color']['value']
+            color = RGBA_255(value)
+        ind = Indicator(name, metric, widget, position, color)
+        indicators.append(ind)
+    return indicators
+
+
+class Metric:
+
+    def __init__(self, unit=None, refresh_rate=None):
+        self.plugin = None
+        self.unit = unit
+        self.refresh_rate = refresh_rate
+
+        self._val_min = None
+        self._val_max = None
+        self._val_range = None
+        self._val_curr = None
+        self._val_frac = None
+
+    @property
+    def value(self):
+        return self._val_frac
+
+    @property
+    def value_raw(self):
+        return self._val_curr
+
+    def refresh(self):
+        pass
+
+
+class Time(Metric):
+
+    def __init__(self, unit='seconds', refresh_rate=1):
+        super().__init__(unit, refresh_rate)
+        self.plugin = 'time'
+
+        self._val_min = 0
+        if self.unit in ['seconds', 'seconds_tick']:
+            self._val_max = 60
+        elif self.unit == 'minutes':
+            self._val_max = 60
+        elif self.unit == 'hours':
+            self._val_max = 12
+        elif self.unit == 'hours_24':
+            self._val_max = 24
+
+        self._val_range = self._val_max - self._val_min
+        self._val_curr = self._val_min
+        self._val_frac = (self._val_curr - self._val_min) / self._val_range
+
+    def refresh(self):
+        now = datetime.now()
+        if self.unit == 'seconds':
+            self._val_curr = now.second + (now.microsecond / 1000000)
+        elif self.unit == 'seconds_tick':
+            self._val_curr = now.second
+        elif self.unit == 'minutes':
+            self._val_curr = (
+                now.minute
+                + now.second / 60
+                + (now.microsecond / 60000000)
+            )
+        elif self.unit == 'hours':
+            self._val_curr = (
+                (now.hour % 12)
+                + now.minute / 60
+                + now.second / 3600
+            )
+        elif self.unit == 'hours_24':
+            self._val_curr = (
+                now.hour
+                + now.minute / 60
+                + now.second / 3600
+            )
+        self._val_frac = (self._val_curr - self._val_min) / self._val_range
+
+
+class Widget:
+
+    def __init__(self, length=None, width=None, orientation=None, **kwargs):
+        self.plugin = None
+        self.length = length
+        self.width = width
+        self.orientation = orientation
+
+    def redraw(self, ctx):
+        pass
+
+
+class Arc(Widget):
+
+    def __init__(self, length=100, width=10, orientation=0, **kwargs):
+        length = math.radians(360) * (length / 100)
+        super().__init__(length, width, orientation)
+        self.plugin = 'arc'
+        self.radius = kwargs['radius']
+        self._angle_start = math.radians(-90) + math.radians(self.orientation)
+        self._angle_end = self._angle_start
+        
+    def redraw(self, ctx, position, value):
+        self._angle_end = self._angle_start + (value * self.length)
+        ctx.set_line_width(self.width)
+        ctx.arc(
+            position[0],
+            position[1],
+            self.radius,
+            self._angle_start,
+            self._angle_end,
+        )
+        ctx.stroke()
+
+
+class Color:
+
+    def __init__(self, value):
+        self.plugin = None
+        self.value = value
+
+    def refresh(self, metric_value):
+        pass
+
+
+class RGBA_255(Color):
+
+    def __init__(self, value=(0, 0, 0, 255)):
+        value = (
+            value[0] / 255,
+            value[1] / 255,
+            value[2] / 255,
+            value[3] / 255,
+        )
+        super().__init__(value)
+        self.plugin = 'rgba_255'
 
 
 class Indicator:
 
-    def __init__(self, parent):
-        self.color = (0, 0, 0, 0.5)
-        parent_w, parent_h = parent.get_size()
-        self.pos = (parent_w / 2, parent_h / 2)
-        self.size = 100
-        self.thick = 10
-        
-        self.val_min = 0
-        self.val_max = 60
-        self.val_range = self.val_max - self.val_min
-        self.val_curr = self.val_min
-        
-        self.len_min = 0
-        self.len_max = math.radians(360)
-        self.len_range = self.len_max - self.len_min
-        self.len_curr = self.len_min
+    def __init__(self, name, metric, widget, position, color):
+        self.name = name
+        self.metric = metric
+        self.widget = widget
+        self.position = position
+        self.color = color
 
-        self.start = math.radians(-90)
-        self.end = self.start
+    def refresh(self):
+        self.metric.refresh()
+        self.color.refresh(self.metric.value)
 
-    def set_len_limits(self, len_min, len_max):
-        self.len_min = len_min
-        self.len_max = len_max
-        self.len_range = len_max - len_min
-
-    def set_val_limits(self, val_min, val_max):
-        self.val_min = val_min
-        self.val_max = val_max
-        self.val_range = val_max - val_min
-
-    def update(self):
-        pass
+    def redraw(self, ctx):
+        r, g, b, a = self.color.value
+        ctx.set_source_rgba(r, g, b, a)
+        self.widget.redraw(ctx, self.position, self.metric.value)
 
 
-class Clock(Indicator):
-
-    def __init__(self, parent, unit):
-        super(Clock, self).__init__(parent)
-        self.unit = unit
-
-    def update(self):
-        now = datetime.now()
-        if self.unit == 'seconds':
-            self.set_val_limits(0, 60)
-            self.val_curr = now.second + (now.microsecond / 1000000)
-        elif self.unit == 'minutes':
-            self.set_val_limits(0, 60)
-            self.val_curr = (now.minute + 
-                             (now.second / 60) +
-                             (now.microsecond / 60000000)
-                            )
-        elif self.unit == 'hours':
-            self.set_val_limits(0, 12)
-            self.val_curr = ((now.hour % 12) + 
-                             (now.minute / 60) +
-                             (now.second / 3600)
-                            )
-        else:
-            raise Exception('Unrecognised unit')
-        val_percent = self.val_curr / self.val_range
-        self.end = self.start + (val_percent * self.len_range)
-        
+def reload_config(window):
+    if 'mtime' not in reload_config.__dict__:
+        reload_config.mtime = 0
+    config_path = '/home/mike/Code/python/pylsner/etc/pylsner/config.yml'
+    config_mtime = os.path.getmtime(config_path)
+    if config_mtime > reload_config.mtime:
+        reload_config.mtime = config_mtime
+        with open(config_path) as config_file:
+            config = yaml.load(config_file)
+        window.indicators = init_indicators(config, window)
+        window.refresh(True)
+    return True
 
 
 def main():
-    pyl_win = Window()
+    main_win = Window()
+    reload_config(main_win)
 
-    secs = Clock(pyl_win, 'seconds')
-    pyl_win.indicators.append(secs)
-
-    mins = Clock(pyl_win, 'minutes')
-    mins.size = 120
-    pyl_win.indicators.append(mins)
-
-    hrs = Clock(pyl_win, 'hours')
-    hrs.size = 140
-    pyl_win.indicators.append(hrs)
-
-    GLib.timeout_add(10, pyl_win.update)
+    GLib.timeout_add(1, main_win.refresh)
+    GLib.timeout_add(1000, reload_config, main_win)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     Gtk.main()
 

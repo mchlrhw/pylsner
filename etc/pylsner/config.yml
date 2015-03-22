@@ -1,0 +1,49 @@
+---
+indicators:
+  - name: time_secs
+    metric:
+      plugin: time
+      unit: seconds
+      refresh_rate: 10
+    widget:
+      plugin: arc
+      length: 100
+      width: 10
+      orientation: 0
+      radius: 140
+    position: [0, 0]
+    color:
+      plugin: rgba_255
+      value: [0, 0, 0, 140]
+
+  - name: time_mins
+    metric:
+      plugin: time
+      unit: minutes
+      refresh_rate: 100
+    widget:
+      plugin: arc
+      length: 100
+      width: 10
+      orientation: 0
+      radius: 120
+    position: [0, 0]
+    color:
+      plugin: rgba_255
+      value: [0, 0, 0, 140]
+
+  - name: time_hrs
+    metric:
+      plugin: time
+      unit: hours
+      refresh_rate: 1000
+    widget:
+      plugin: arc
+      length: 100
+      width: 10
+      orientation: 0
+      radius: 100
+    position: [0, 0]
+    color:
+      plugin: rgba_255
+      value: [0, 0, 0, 140]

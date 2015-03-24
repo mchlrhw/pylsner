@@ -11,10 +11,10 @@ indicators:
       width: 10
       orientation: 0
       radius: 140
-    position: [0, 0]
+    position: [530, 370]
     color:
       plugin: rgba_255
-      value: [0, 0, 0, 140]
+      value: [0, 125, 125,255]
 
   - name: time_mins
     metric:
@@ -27,10 +27,10 @@ indicators:
       width: 10
       orientation: 0
       radius: 120
-    position: [0, 0]
+    position: [530, 370]
     color:
       plugin: rgba_255
-      value: [0, 0, 0, 140]
+      value: [0, 125, 125,255]
 
   - name: time_hrs
     metric:
@@ -43,7 +43,7 @@ indicators:
       width: 10
       orientation: 0
       radius: 100
-    position: [0, 0]
+    position: [530, 370]
     color:
       plugin: rgba_255
-      value: [0, 0, 0, 140]
+      value: [0, 125, 125,255]

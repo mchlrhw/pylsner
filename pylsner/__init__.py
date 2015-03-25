@@ -36,5 +36,7 @@ def init_indicators(config, window):
     indicators = []
     for ind_spec in config['indicators']:
         ind = gui.Indicator(**ind_spec)
+        ind.position[0] = (window.width / 2) + ind.position[0]
+        ind.position[1] = (window.height / 2) + (ind.position[1] * -1)
         indicators.append(ind)
     return indicators

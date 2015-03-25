@@ -1,5 +1,6 @@
 from pylsner.plugin import Color
 
+
 class Plugin(Color):
 
     def __init__(self, plugin='rgba_255', value=(0, 0, 0, 255)):

@@ -25,7 +25,12 @@ class Metric:
 
 class Widget:
 
-    def __init__(self, plugin=None, length=None, width=None, orientation=None):
+    def __init__(self,
+                 plugin=None,
+                 length=None,
+                 width=None,
+                 orientation=None,
+                ):
         self.plugin = plugin
         self.length = length
         self.width = width

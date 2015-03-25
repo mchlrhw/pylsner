@@ -63,21 +63,20 @@ class Window(Gtk.Window):
 
 class Indicator:
 
-    def __init__(
-        self,
-        name='default',
-        metric={'plugin': 'time'},
-        widget={'plugin': 'arc'},
-        position=[0, 0],
-        color={'plugin': 'rgba_255'},
-    ):
+    def __init__(self,
+                 name='default',
+                 metric={'plugin': 'time'},
+                 widget={'plugin': 'arc'},
+                 position=[0, 0],
+                 color={'plugin': 'rgba_255'},
+                ):
         self.name = name
-        MetricPlugin = plugin.load_plugin('metric', metric['plugin'])
+        MetricPlugin = plugin.load_plugin('metrics', metric['plugin'])
         self.metric = MetricPlugin(**metric)
-        WidgetPlugin = plugin.load_plugin('widget', widget['plugin'])
+        WidgetPlugin = plugin.load_plugin('widgets', widget['plugin'])
         self.widget = WidgetPlugin(**widget)
         self.position = position
-        ColorPlugin = plugin.load_plugin('color', color['plugin'])
+        ColorPlugin = plugin.load_plugin('colors', color['plugin'])
         self.color = ColorPlugin(**color)
 
     def refresh(self):

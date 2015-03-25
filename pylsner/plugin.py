@@ -1,7 +1,7 @@
 class Metric:
 
-    def __init__(self, unit=None, refresh_rate=None):
-        self.plugin = None
+    def __init__(self, plugin=None, unit=None, refresh_rate=None):
+        self.plugin = plugin
         self.unit = unit
         self.refresh_rate = refresh_rate
 
@@ -25,8 +25,8 @@ class Metric:
 
 class Widget:
 
-    def __init__(self, length=None, width=None, orientation=None, **kwargs):
-        self.plugin = None
+    def __init__(self, plugin=None, length=None, width=None, orientation=None):
+        self.plugin = plugin
         self.length = length
         self.width = width
         self.orientation = orientation
@@ -37,9 +37,15 @@ class Widget:
 
 class Color:
 
-    def __init__(self, value):
-        self.plugin = None
+    def __init__(self, plugin=None, value=None):
+        self.plugin = plugin
         self.value = value
 
     def refresh(self, metric_value):
         pass
+
+
+def load_plugin(plugin_type, plugin_name):
+    mod_str = 'pylsner.plugins.{}.{}'.format(plugin_type, plugin_name)
+    _temp_mod = __import__(mod_str, globals(), locals(), ['Plugin'])
+    return _temp_mod.Plugin

@@ -1,12 +1,11 @@
 from datetime import datetime
 
-from .. import Metric
+from pylsner.plugin import Metric
 
-class Time(Metric):
+class Plugin(Metric):
 
-    def __init__(self, unit='seconds', refresh_rate=1):
-        super().__init__(unit, refresh_rate)
-        self.plugin = 'time'
+    def __init__(self, plugin='time', unit='seconds', refresh_rate=1):
+        super().__init__(plugin, unit, refresh_rate)
 
         self._val_min = 0
         if self.unit in ['seconds', 'seconds_tick']:

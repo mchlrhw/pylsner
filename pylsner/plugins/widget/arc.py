@@ -1,14 +1,13 @@
 import math
 
-from .. import Widget
+from pylsner.plugin import Widget
 
-class Arc(Widget):
+class Plugin(Widget):
 
-    def __init__(self, length=100, width=10, orientation=0, **kwargs):
+    def __init__(self, plugin='arc', length=100, width=10, orientation=0, radius=100):
         length = math.radians(360) * (length / 100)
-        super().__init__(length, width, orientation)
-        self.plugin = 'arc'
-        self.radius = kwargs['radius']
+        super().__init__(plugin, length, width, orientation)
+        self.radius = radius
         self._angle_start = math.radians(-90) + math.radians(self.orientation)
         self._angle_end = self._angle_start
 

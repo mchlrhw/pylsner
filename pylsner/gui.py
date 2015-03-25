@@ -3,6 +3,8 @@ import cairo
 from gi.repository import Gtk
 from gi.repository import Gdk
 
+from pylsner import plugin
+
 
 class Window(Gtk.Window):
 
@@ -61,12 +63,22 @@ class Window(Gtk.Window):
 
 class Indicator:
 
-    def __init__(self, name, metric, widget, position, color):
+    def __init__(
+        self,
+        name='default',
+        metric={'plugin': 'time'},
+        widget={'plugin': 'arc'},
+        position=[0, 0],
+        color={'plugin': 'rgba_255'},
+    ):
         self.name = name
-        self.metric = metric
-        self.widget = widget
+        MetricPlugin = plugin.load_plugin('metric', metric['plugin'])
+        self.metric = MetricPlugin(**metric)
+        WidgetPlugin = plugin.load_plugin('widget', widget['plugin'])
+        self.widget = WidgetPlugin(**widget)
         self.position = position
-        self.color = color
+        ColorPlugin = plugin.load_plugin('color', color['plugin'])
+        self.color = ColorPlugin(**color)
 
     def refresh(self):
         self.metric.refresh()

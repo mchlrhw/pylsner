@@ -3,7 +3,7 @@
   metric:
     plugin: time
     unit: seconds
-    refresh_rate: 10
+    refresh_rate: 50
   widget:
     plugin: arc
     length: 100
@@ -21,7 +21,7 @@
   metric:
     plugin: time
     unit: minutes
-    refresh_rate: 100
+    refresh_rate: 500
   widget:
     plugin: arc
     length: 100
@@ -38,7 +38,7 @@
   metric:
     plugin: time
     unit: hours
-    refresh_rate: 1000
+    refresh_rate: 10000
   widget:
     plugin: arc
     length: 100

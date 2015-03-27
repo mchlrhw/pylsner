@@ -43,15 +43,14 @@ class Window(Gtk.Window):
 
     def refresh(self, force=False):
         self.refresh_cnt += 1
-        refresh_list = []
-        if self.refresh_cnt >= 10000:
+        if self.refresh_cnt >= 60000:
             self.refresh_cnt = 0
+        redraw_required = False
         for ind in self.indicators:
             if (self.refresh_cnt % ind.metric.refresh_rate == 0) or force:
-                refresh_list.append(ind)
-        for ind in refresh_list:
-            ind.refresh()
-        if refresh_list:
+                ind.refresh()
+                redraw_required = True
+        if redraw_required:
             self.queue_draw()
         return True
 

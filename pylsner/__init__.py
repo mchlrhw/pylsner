@@ -38,8 +38,16 @@ def reload_config(window):
         reload_config.mtime = 0
     config_path = 'etc/pylsner/config.yml'
     config_mtime = os.path.getmtime(config_path)
+    indicators_path = 'etc/pylsner/indicators.yml'
+    indicators_mtime = os.path.getmtime(indicators_path)
+    reload_required = False
     if config_mtime > reload_config.mtime:
         reload_config.mtime = config_mtime
+        reload_required = True
+    if indicators_mtime > reload_config.mtime:
+        reload_config.mtime = indicators_mtime
+        reload_required = True
+    if reload_required:
         with open(config_path) as config_file:
             config = yaml.load(config_file, Loader)
         window.indicators = init_indicators(config, window)

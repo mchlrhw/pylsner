@@ -10,12 +10,13 @@ class Plugin(Indicator):
                  length=100,
                  width=10,
                  orientation=0,
+                 position=[0, 0],
                  radius=100,
                  background=False,
                  **kwargs
                 ):
         length = math.radians(360) * (length / 100)
-        super().__init__(length, width, orientation, **kwargs)
+        super().__init__(length, width, orientation, position, **kwargs)
 
         self.radius = radius
         self.background = background

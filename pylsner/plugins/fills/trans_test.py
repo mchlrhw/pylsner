@@ -5,8 +5,8 @@ from pylsner.plugin import Fill
 
 class Plugin(Fill):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, color_stops={0: [0, 0, 0, 1]}, **kwargs):
+        self.color_stops = color_stops
 
     def refresh(self, metric_value):
         sector = metric_value * 6

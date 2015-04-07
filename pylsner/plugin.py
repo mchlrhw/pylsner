@@ -3,7 +3,7 @@ from numbers import Number
 
 class Metric:
 
-    def __init__(self, unit, refresh_rate, **kwargs):
+    def __init__(self, unit, refresh_rate):
         self.unit = unit
         self.refresh_rate = refresh_rate
 
@@ -25,13 +25,7 @@ class Metric:
 
 class Indicator:
 
-    def __init__(self,
-                 length,
-                 width,
-                 orientation,
-                 position,
-                 **kwargs
-                ):
+    def __init__(self, length, width, orientation, position):
         self.length = length
         self.width = width
         self.orientation = orientation
@@ -42,9 +36,6 @@ class Indicator:
 
 
 class Fill:
-
-    def __init__(self, **kwargs):
-        pass
 
     def refresh(self, metric_value):
         pass

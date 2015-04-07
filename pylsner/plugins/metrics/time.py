@@ -6,7 +6,7 @@ from pylsner.plugin import Metric
 class Plugin(Metric):
 
     def __init__(self, unit='seconds', refresh_rate=1, **kwargs):
-        super().__init__(unit, refresh_rate, **kwargs)
+        super().__init__(unit, refresh_rate)
 
         self._set_value = getattr(self, '_set_{}'.format(unit))
 

@@ -13,8 +13,9 @@
     radius: 140
     background: true
   fill:
-    plugin: rgba
-    color: [0.3, 0.3, 0.3, 1]
+    plugin: solid
+    form: rgb_255
+    color: [100, 100, 100]
 
 - name: time_mins
   metric:
@@ -31,6 +32,14 @@
     background: true
   fill:
     plugin: trans_test
+    form: rbg_255
+    color_stops:
+      17: [255, 0, 0]
+      33: [255, 255, 0]
+      50: [0, 255, 0]
+      67: [0, 255, 255]
+      83: [0, 0, 255]
+      100: [255, 0, 255]
 
 - name: time_hrs
   metric:
@@ -47,3 +56,10 @@
     background: true
   fill:
     plugin: trans_test
+    color_stops:
+      17: [255, 0, 0]
+      33: [255, 255, 0]
+      50: [0, 255, 0]
+      67: [0, 255, 255]
+      83: [0, 0, 255]
+      100: [255, 0, 255]

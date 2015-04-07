@@ -16,7 +16,7 @@ class Plugin(Indicator):
                  **kwargs
                 ):
         length = math.radians(360) * (length / 100)
-        super().__init__(length, width, orientation, position, **kwargs)
+        super().__init__(length, width, orientation, position)
 
         self.radius = radius
         self.background = background

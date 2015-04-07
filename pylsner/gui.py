@@ -37,7 +37,7 @@ class Window(Gtk.Window):
 
         self.connect('destroy', lambda q: Gtk.main_quit())
 
-        self.indicators = []
+        self.widgets = []
 
         self.show_all()
 
@@ -46,43 +46,40 @@ class Window(Gtk.Window):
         if self.refresh_cnt >= 60000:
             self.refresh_cnt = 0
         redraw_required = False
-        for ind in self.indicators:
-            if (self.refresh_cnt % ind.metric.refresh_rate == 0) or force:
-                ind.refresh()
+        for wid in self.widgets:
+            if (self.refresh_cnt % wid.metric.refresh_rate == 0) or force:
+                wid.refresh()
                 redraw_required = True
         if redraw_required:
             self.queue_draw()
         return True
 
-    def redraw(self, widget, ctx):
+    def redraw(self, _, ctx):
         ctx.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
-        for ind in self.indicators:
-            ind.redraw(ctx)
+        for wid in self.widgets:
+            wid.redraw(ctx)
 
 
-class Indicator:
+class Widget:
 
     def __init__(self,
                  name='default',
                  metric={'plugin': 'time'},
-                 widget={'plugin': 'arc'},
-                 position=[0, 0],
-                 color={'plugin': 'rgba_255'},
+                 indicator={'plugin': 'arc'},
+                 fill={'plugin': 'rgba_255'},
                 ):
         self.name = name
         MetricPlugin = plugin.load_plugin('metrics', metric['plugin'])
         self.metric = MetricPlugin(**metric)
-        WidgetPlugin = plugin.load_plugin('widgets', widget['plugin'])
-        self.widget = WidgetPlugin(**widget)
-        self.position = position
-        ColorPlugin = plugin.load_plugin('colors', color['plugin'])
-        self.color = ColorPlugin(**color)
+        IndicatorPlugin = plugin.load_plugin('indicators', indicator['plugin'])
+        self.indicator = IndicatorPlugin(**indicator)
+        FillPlugin = plugin.load_plugin('fills', fill['plugin'])
+        self.fill = FillPlugin(**fill)
 
     def refresh(self):
         self.metric.refresh()
-        self.color.refresh(self.metric.value)
+        self.fill.refresh(self.metric.value)
 
     def redraw(self, ctx):
-        r, g, b, a = self.color.value
-        ctx.set_source_rgba(r, g, b, a)
-        self.widget.redraw(ctx, self.position, self.metric.value)
+        ctx.set_source(self.fill.pattern)
+        self.indicator.redraw(ctx, self.metric.value)

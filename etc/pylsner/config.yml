@@ -1,2 +1,2 @@
 ---
-indicators: !include indicators.yml
+widgets: !include widgets.yml

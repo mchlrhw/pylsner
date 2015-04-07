@@ -1,33 +1,34 @@
 import cairo
 import math
 
-from pylsner.plugin import Widget
+from pylsner.plugin import Indicator
 
 
-class Plugin(Widget):
+class Plugin(Indicator):
 
     def __init__(self,
-                 plugin='arc',
                  length=100,
                  width=10,
                  orientation=0,
                  radius=100,
                  background=False,
+                 **kwargs
                 ):
         length = math.radians(360) * (length / 100)
-        super().__init__(plugin, length, width, orientation)
+        super().__init__(length, width, orientation, **kwargs)
+
         self.radius = radius
         self.background = background
 
         self._angle_start = math.radians(-90) + math.radians(self.orientation)
         self._angle_end = self._angle_start
 
-    def redraw(self, ctx, position, value):
-        self._angle_end = self._angle_start + (value * self.length)
+    def redraw(self, ctx, metric_value):
+        self._angle_end = self._angle_start + (metric_value * self.length)
         ctx.set_line_width(self.width)
         ctx.arc(
-            position[0],
-            position[1],
+            self.position[0],
+            self.position[1],
             self.radius,
             self._angle_start,
             self._angle_end,
@@ -42,8 +43,8 @@ class Plugin(Widget):
                 r, g, b, a = 0, 0, 0, 0.5
             ctx.set_source_rgba(r, g, b, a)
             ctx.arc(
-                position[0],
-                position[1],
+                self.position[0],
+                self.position[1],
                 self.radius,
                 self._angle_end,
                 self._angle_start,

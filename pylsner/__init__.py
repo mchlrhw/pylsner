@@ -38,28 +38,32 @@ def reload_config(window):
         reload_config.mtime = 0
     config_path = 'etc/pylsner/config.yml'
     config_mtime = os.path.getmtime(config_path)
-    indicators_path = 'etc/pylsner/indicators.yml'
-    indicators_mtime = os.path.getmtime(indicators_path)
+    widgets_path = 'etc/pylsner/widgets.yml'
+    widgets_mtime = os.path.getmtime(widgets_path)
     reload_required = False
     if config_mtime > reload_config.mtime:
         reload_config.mtime = config_mtime
         reload_required = True
-    if indicators_mtime > reload_config.mtime:
-        reload_config.mtime = indicators_mtime
+    if widgets_mtime > reload_config.mtime:
+        reload_config.mtime = widgets_mtime
         reload_required = True
     if reload_required:
         with open(config_path) as config_file:
             config = yaml.load(config_file, Loader)
-        window.indicators = init_indicators(config, window)
+        window.widgets = init_widgets(config, window)
         window.refresh(True)
     return True
 
 
-def init_indicators(config, window):
-    indicators = []
-    for ind_spec in config['indicators']:
-        ind = gui.Indicator(**ind_spec)
-        ind.position[0] = (window.width / 2) + ind.position[0]
-        ind.position[1] = (window.height / 2) + (ind.position[1] * -1)
-        indicators.append(ind)
-    return indicators
+def init_widgets(config, window):
+    widgets = []
+    for wid_spec in config['widgets']:
+        wid = gui.Widget(**wid_spec)
+        wid.indicator.position[0] = ((window.width / 2)
+                                     + wid.indicator.position[0]
+                                    )
+        wid.indicator.position[1] = ((window.height / 2)
+                                     + (wid.indicator.position[1] * -1)
+                                    )
+        widgets.append(wid)
+    return widgets

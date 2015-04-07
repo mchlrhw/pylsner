@@ -1,50 +1,50 @@
+from numbers import Number
+
+
 class Metric:
 
-    def __init__(self, plugin=None, unit=None, refresh_rate=None):
-        self.plugin = plugin
+    def __init__(self, unit, refresh_rate, **kwargs):
         self.unit = unit
         self.refresh_rate = refresh_rate
 
-        self._val_min = None
-        self._val_max = None
-        self._val_range = None
-        self._val_curr = None
-        self._val_frac = None
+    def set_limits(self, minimum=None, maximum=None):
+        if isinstance(minimum, Number):
+            self._min = minimum
+        if isinstance(maximum, Number):
+            self._max = maximum
+        assert(self._max >= self._min)
+        self._range = self._max - self._min
 
     @property
     def value(self):
-        return self._val_frac
-
-    @property
-    def value_raw(self):
-        return self._val_curr
+        return (self._curr - self._min) / self._range
 
     def refresh(self):
         pass
 
 
-class Widget:
+class Indicator:
 
     def __init__(self,
-                 plugin=None,
-                 length=None,
-                 width=None,
-                 orientation=None,
+                 length,
+                 width,
+                 orientation,
+                 position,
+                 **kwargs
                 ):
-        self.plugin = plugin
         self.length = length
         self.width = width
         self.orientation = orientation
+        self.position = position
 
     def redraw(self, ctx):
         pass
 
 
-class Color:
+class Fill:
 
-    def __init__(self, plugin=None, value=None):
-        self.plugin = plugin
-        self.value = value
+    def __init__(self, **kwargs):
+        pass
 
     def refresh(self, metric_value):
         pass

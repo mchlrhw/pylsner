@@ -80,9 +80,9 @@ class Widget:
 
     @property
     def pattern(self):
-        if hasattr(self, 'fill'):
+        try:
             return self.fill.pattern
-        else:
+        except AttributeError:
             return cairo.SolidPattern(1, 1, 1)
 
     def refresh(self):

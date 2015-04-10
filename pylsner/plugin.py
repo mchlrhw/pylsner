@@ -1,3 +1,5 @@
+import cairo
+
 from numbers import Number
 
 

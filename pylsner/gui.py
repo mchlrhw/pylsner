@@ -88,6 +88,8 @@ class Widget:
     def refresh(self):
         self.metric.refresh(self)
         for attr_name in dir(self):
+            if attr_name == 'metric' or attr_name.startswith('__'):
+                continue
             attr = getattr(self, attr_name)
             if isinstance(attr, plugin.Stateful):
                 attr.refresh(self)

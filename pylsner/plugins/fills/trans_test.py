@@ -5,11 +5,12 @@ from pylsner.plugin import Fill
 
 class Plugin(Fill):
 
-    def __init__(self, color_stops={0: [0, 0, 0, 1]}, **kwargs):
+    def __init__(self, form='rgba', color_stops={0: [0, 0, 0, 1]}):
         self.color_stops = color_stops
 
-    def refresh(self, metric_value):
-        sector = metric_value * 6
+    def refresh(self, parent):
+        value = parent.metric.value
+        sector = value * 6
         if sector < 1:
             self.pattern = cairo.SolidPattern(1, 0, sector, 1)
         elif sector < 2:

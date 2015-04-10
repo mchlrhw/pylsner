@@ -5,7 +5,7 @@ from pylsner.plugin import Fill
 
 class Plugin(Fill):
 
-    def __init__(self, form='rgba', color=[0, 0, 0, 1], **kwargs):
+    def __init__(self, form='rgba', color=[0, 0, 0, 1]):
         if form == 'rgba':
             assert(len(color) == 4)
         elif form == 'rgb':
@@ -22,3 +22,6 @@ class Plugin(Fill):
             color.append(1)
 
         self.pattern = cairo.SolidPattern(*color)
+
+    def refresh(self, parent):
+        pass

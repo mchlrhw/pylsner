@@ -13,7 +13,6 @@ class Plugin(Indicator):
                  position=[0, 0],
                  radius=100,
                  background=False,
-                 **kwargs
                 ):
         length = math.radians(360) * (length / 100)
         super().__init__(length, width, orientation, position)
@@ -24,13 +23,16 @@ class Plugin(Indicator):
         self._angle_start = math.radians(-90) + math.radians(self.orientation)
         self._angle_end = self._angle_start
 
-    def redraw(self, ctx, metric_value):
-        self._angle_end = self._angle_start + (metric_value * self.length)
+    def redraw(self, ctx, window, parent):
+        value = parent.metric.value
+        origin = [window.width / 2, window.height / 2]
+
+        self._angle_end = self._angle_start + (value * self.length)
         ctx.set_line_width(self.width)
 
         ctx.arc(
-            self.position[0],
-            self.position[1],
+            origin[0] + self.position[0],
+            origin[1] - self.position[1],
             self.radius,
             self._angle_start,
             self._angle_end,
@@ -50,16 +52,16 @@ class Plugin(Indicator):
 
             if self._angle_end != self._angle_start:
                 ctx.arc(
-                    self.position[0],
-                    self.position[1],
+                    origin[0] + self.position[0],
+                    origin[1] - self.position[1],
                     self.radius,
                     self._angle_end,
                     self._angle_start,
                 )
             else:
                 ctx.arc(
-                    self.position[0],
-                    self.position[1],
+                    origin[0] + self.position[0],
+                    origin[1] - self.position[1],
                     self.radius,
                     self._angle_start,
                     self._angle_start + self.length,

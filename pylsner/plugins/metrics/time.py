@@ -48,6 +48,6 @@ class Plugin(Metric):
             + now.second / 3600
         )
 
-    def refresh(self):
+    def refresh(self, parent):
         now = datetime.now()
         self._set_value(now)

@@ -1,7 +1,19 @@
 from numbers import Number
 
 
-class Metric:
+class Drawable:
+
+    def redraw(self, ctx, window, parent):
+        raise NotImplementedError
+
+
+class Stateful:
+
+    def refresh(self, parent):
+        raise NotImplementedError
+
+
+class Metric(Stateful):
 
     def __init__(self, unit, refresh_rate):
         self.unit = unit
@@ -19,11 +31,8 @@ class Metric:
     def value(self):
         return (self._curr - self._min) / self._range
 
-    def refresh(self):
-        pass
 
-
-class Indicator:
+class Indicator(Drawable):
 
     def __init__(self, length, width, orientation, position):
         self.length = length
@@ -31,14 +40,9 @@ class Indicator:
         self.orientation = orientation
         self.position = position
 
-    def redraw(self, ctx):
-        pass
 
-
-class Fill:
-
-    def refresh(self, metric_value):
-        pass
+class Fill(Stateful):
+    pass
 
 
 def load_plugin(plugin_type, plugin_name):

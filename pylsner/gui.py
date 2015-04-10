@@ -46,9 +46,9 @@ class Window(Gtk.Window):
         if self.refresh_cnt >= 60000:
             self.refresh_cnt = 0
         redraw_required = False
-        for wid in self.widgets:
-            if (self.refresh_cnt % wid.metric.refresh_rate == 0) or force:
-                wid.refresh()
+        for widget in self.widgets:
+            if (self.refresh_cnt % widget.metric.refresh_rate == 0) or force:
+                widget.refresh()
                 redraw_required = True
         if redraw_required:
             self.queue_draw()
@@ -56,8 +56,8 @@ class Window(Gtk.Window):
 
     def redraw(self, _, ctx):
         ctx.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
-        for wid in self.widgets:
-            wid.redraw(ctx)
+        for widget in self.widgets:
+            widget.redraw(ctx, self)
 
 
 class Widget:
@@ -69,17 +69,17 @@ class Widget:
                  fill={'plugin': 'rgba_255'},
                 ):
         self.name = name
-        MetricPlugin = plugin.load_plugin('metrics', metric['plugin'])
+        MetricPlugin = plugin.load_plugin('metrics', metric.pop('plugin'))
         self.metric = MetricPlugin(**metric)
-        IndicatorPlugin = plugin.load_plugin('indicators', indicator['plugin'])
+        IndicatorPlugin = plugin.load_plugin('indicators', indicator.pop('plugin'))
         self.indicator = IndicatorPlugin(**indicator)
-        FillPlugin = plugin.load_plugin('fills', fill['plugin'])
+        FillPlugin = plugin.load_plugin('fills', fill.pop('plugin'))
         self.fill = FillPlugin(**fill)
 
     def refresh(self):
-        self.metric.refresh()
-        self.fill.refresh(self.metric.value)
+        self.metric.refresh(self)
+        self.fill.refresh(self)
 
-    def redraw(self, ctx):
+    def redraw(self, ctx, window):
         ctx.set_source(self.fill.pattern)
-        self.indicator.redraw(ctx, self.metric.value)
+        self.indicator.redraw(ctx, window, self)

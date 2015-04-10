@@ -57,13 +57,7 @@ def reload_config(window):
 
 def init_widgets(config, window):
     widgets = []
-    for wid_spec in config['widgets']:
-        wid = gui.Widget(**wid_spec)
-        wid.indicator.position[0] = ((window.width / 2)
-                                     + wid.indicator.position[0]
-                                    )
-        wid.indicator.position[1] = ((window.height / 2)
-                                     + (wid.indicator.position[1] * -1)
-                                    )
-        widgets.append(wid)
+    for widget_spec in config['widgets']:
+        widget = gui.Widget(**widget_spec)
+        widgets.append(widget)
     return widgets

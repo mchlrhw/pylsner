@@ -22,6 +22,3 @@ class Plugin(Fill):
             color.append(1)
 
         self.pattern = cairo.SolidPattern(*color)
-
-    def refresh(self, parent):
-        pass

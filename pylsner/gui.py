@@ -78,7 +78,8 @@ class Widget:
 
     def refresh(self):
         self.metric.refresh(self)
-        self.fill.refresh(self)
+        if isinstance(self.fill, plugin.Stateful):
+            self.fill.refresh(self)
 
     def redraw(self, ctx, window):
         ctx.set_source(self.fill.pattern)

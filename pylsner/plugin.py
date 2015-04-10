@@ -41,7 +41,7 @@ class Indicator(Drawable):
         self.position = position
 
 
-class Fill(Stateful):
+class Fill:
     pass
 
 

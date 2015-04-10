@@ -1,9 +1,9 @@
 import cairo
 
-from pylsner.plugin import Fill
+from pylsner.plugin import Fill, Stateful
 
 
-class Plugin(Fill):
+class Plugin(Fill, Stateful):
 
     def __init__(self, form='rgba', color_stops={0: [0, 0, 0, 1]}):
         self.color_stops = color_stops

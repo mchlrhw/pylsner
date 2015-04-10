@@ -21,4 +21,4 @@ class Plugin(Fill):
                 elem = elem / 255
             color.append(1)
 
-        self.pattern = cairo.SolidPattern(*color)
+        self._pattern = cairo.SolidPattern(*color)

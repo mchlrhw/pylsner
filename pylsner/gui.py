@@ -47,7 +47,7 @@ class Window(Gtk.Window):
             self.refresh_cnt = 0
         redraw_required = False
         for widget in self.widgets:
-            if (self.refresh_cnt % widget.metric.refresh_rate == 0) or force:
+            if (self.refresh_cnt % widget.refresh_rate == 0) or force:
                 widget.refresh()
                 redraw_required = True
         if redraw_required:
@@ -62,25 +62,39 @@ class Window(Gtk.Window):
 
 class Widget:
 
-    def __init__(self,
-                 name='default',
-                 metric={'plugin': 'time'},
-                 indicator={'plugin': 'arc'},
-                 fill={'plugin': 'rgba_255'},
-                ):
-        self.name = name
-        MetricPlugin = plugin.load_plugin('metrics', metric.pop('plugin'))
-        self.metric = MetricPlugin(**metric)
-        IndicatorPlugin = plugin.load_plugin('indicators', indicator.pop('plugin'))
-        self.indicator = IndicatorPlugin(**indicator)
-        FillPlugin = plugin.load_plugin('fills', fill.pop('plugin'))
-        self.fill = FillPlugin(**fill)
+    def __init__(self, **kwargs):
+        self.name = kwargs.pop('name')
+        for plugin_type, plugin_spec in kwargs.items():
+            plugin_dir = plugin_type + 's'
+            Plugin = plugin.load_plugin(plugin_dir, plugin_spec.pop('plugin'))
+            setattr(self, plugin_type, Plugin(**plugin_spec))
+        assert(hasattr(self, 'metric'))
+
+    @property
+    def value(self):
+        return self.metric.value
+
+    @property
+    def refresh_rate(self):
+        return self.metric.refresh_rate
+
+    @property
+    def pattern(self):
+        if hasattr(self, 'fill'):
+            return self.fill.pattern
+        else:
+            return cairo.SolidPattern(1, 1, 1)
 
     def refresh(self):
         self.metric.refresh(self)
-        if isinstance(self.fill, plugin.Stateful):
-            self.fill.refresh(self)
+        for attr_name in dir(self):
+            attr = getattr(self, attr_name)
+            if isinstance(attr, plugin.Stateful):
+                attr.refresh(self)
 
     def redraw(self, ctx, window):
-        ctx.set_source(self.fill.pattern)
-        self.indicator.redraw(ctx, window, self)
+        ctx.set_source(self.pattern)
+        for attr_name in dir(self):
+            attr = getattr(self, attr_name)
+            if isinstance(attr, plugin.Drawable):
+                attr.redraw(ctx, window, self)

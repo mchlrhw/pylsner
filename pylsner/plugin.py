@@ -42,7 +42,13 @@ class Indicator(Drawable):
 
 
 class Fill:
-    pass
+
+    def __init__(self):
+        self._pattern = cairo.SolidPattern(1, 1, 1)
+
+    @property
+    def pattern(self):
+        return self._pattern
 
 
 def load_plugin(plugin_type, plugin_name):

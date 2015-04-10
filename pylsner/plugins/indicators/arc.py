@@ -24,7 +24,7 @@ class Plugin(Indicator):
         self._angle_end = self._angle_start
 
     def redraw(self, ctx, window, parent):
-        value = parent.metric.value
+        value = parent.value
         origin = [window.width / 2, window.height / 2]
 
         self._angle_end = self._angle_start + (value * self.length)

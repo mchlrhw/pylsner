@@ -8,7 +8,7 @@ class Plugin(Fill, Stateful):
     def __init__(self, form='rgba', color_stops={0: [0, 0, 0, 1]}):
         self.color_stops = color_stops
 
-    def refresh(self, parent):
+    def refresh(self, parent, refresh_cnt):
         value = parent.value
         sector = value * 6
         if sector < 1:

@@ -9,13 +9,23 @@
     length: 100
     width: 10
     orientation: 0
-    position: [530, 370]
+#    position: [530, 370]
     radius: 140
     background: true
+#  fill:
+#    plugin: solid
+#    form: hex
+#    color: "444444"
   fill:
-    plugin: solid
-    form: hex
-    color: "444444"
+    plugin: trans_test
+    form: rgb_255
+    color_stops:
+      17: [255, 0, 0]
+      33: [255, 255, 0]
+      50: [0, 255, 0]
+      67: [0, 255, 255]
+      83: [0, 0, 255]
+      100: [255, 0, 255]
 
 - name: time_mins
   metric:
@@ -27,7 +37,7 @@
     length: 100
     width: 10
     orientation: 0
-    position: [530, 370]
+#    position: [530, 370]
     radius: 120
     background: true
   fill:
@@ -51,8 +61,106 @@
     length: 100
     width: 10
     orientation: 0
-    position: [530, 370]
+#    position: [530, 370]
     radius: 100
+    background: true
+  fill:
+    plugin: trans_test
+    form: rgb_255
+    color_stops:
+      17: [255, 0, 0]
+      33: [255, 255, 0]
+      50: [0, 255, 0]
+      67: [0, 255, 255]
+      83: [0, 0, 255]
+      100: [255, 0, 255]
+
+- name: time_week
+  metric:
+    plugin: time
+    unit: week
+    refresh_rate: 60000
+  indicator:
+    plugin: arc
+    length: 25
+    width: 10
+    orientation: 45
+#    position: [530, 370]
+    radius: 180
+    clockwise: false
+    background: true
+  fill:
+    plugin: trans_test
+    form: rgb_255
+    color_stops:
+      17: [255, 0, 0]
+      33: [255, 255, 0]
+      50: [0, 255, 0]
+      67: [0, 255, 255]
+      83: [0, 0, 255]
+      100: [255, 0, 255]
+
+- name: time_month
+  metric:
+    plugin: time
+    unit: month
+    refresh_rate: 60000
+  indicator:
+    plugin: arc
+    length: 25
+    width: 10
+    orientation: 45
+#    position: [530, 370]
+    radius: 200
+    clockwise: false
+    background: true
+  fill:
+    plugin: trans_test
+    form: rgb_255
+    color_stops:
+      17: [255, 0, 0]
+      33: [255, 255, 0]
+      50: [0, 255, 0]
+      67: [0, 255, 255]
+      83: [0, 0, 255]
+      100: [255, 0, 255]
+
+- name: time_year
+  metric:
+    plugin: time
+    unit: year
+    refresh_rate: 60000
+  indicator:
+    plugin: arc
+    length: 25
+    width: 10
+    orientation: 225
+#    position: [530, 370]
+    radius: 180
+    background: true
+  fill:
+    plugin: trans_test
+    form: rgb_255
+    color_stops:
+      17: [255, 0, 0]
+      33: [255, 255, 0]
+      50: [0, 255, 0]
+      67: [0, 255, 255]
+      83: [0, 0, 255]
+      100: [255, 0, 255]
+
+- name: time_century
+  metric:
+    plugin: time
+    unit: century
+    refresh_rate: 60000
+  indicator:
+    plugin: arc
+    length: 25
+    width: 10
+    orientation: 225
+#    position: [530, 370]
+    radius: 200
     background: true
   fill:
     plugin: trans_test

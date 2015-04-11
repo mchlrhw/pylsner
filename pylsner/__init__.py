@@ -50,14 +50,6 @@ def reload_config(window):
     if reload_required:
         with open(config_path) as config_file:
             config = yaml.load(config_file, Loader)
-        window.widgets = init_widgets(config, window)
+        window.init_widgets(config)
         window.refresh(True)
     return True
-
-
-def init_widgets(config, window):
-    widgets = []
-    for widget_spec in config['widgets']:
-        widget = gui.Widget(**widget_spec)
-        widgets.append(widget)
-    return widgets

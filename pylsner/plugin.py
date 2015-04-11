@@ -11,7 +11,7 @@ class Drawable:
 
 class Stateful:
 
-    def refresh(self, parent):
+    def refresh(self, parent, refresh_cnt):
         raise NotImplementedError
 
 
@@ -32,6 +32,25 @@ class Metric(Stateful):
     @property
     def value(self):
         return (self._curr - self._min) / self._range
+
+
+class MetricStore:
+
+    _shared_state = {}
+
+    def __init__(self):
+        self.__dict__ = self._shared_state
+        self.value = None
+        self.refresh_cnt = None
+
+    def get_value(self, refresh_cnt):
+        if refresh_cnt != self.refresh_cnt:
+            self.refresh()
+            self.refresh_cnt = refresh_cnt
+        return self.value
+
+    def refresh(self):
+        raise NotImplementedError
 
 
 class Indicator(Drawable):

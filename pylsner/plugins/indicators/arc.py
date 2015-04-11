@@ -12,25 +12,36 @@ class Plugin(Indicator):
                  orientation=0,
                  position=[0, 0],
                  radius=100,
+                 clockwise=True,
                  background=False,
                 ):
         length = math.radians(360) * (length / 100)
         super().__init__(length, width, orientation, position)
 
         self.radius = radius
+        self.clockwise = clockwise
         self.background = background
 
-        self._angle_start = math.radians(-90) + math.radians(self.orientation)
+        self._angle_start = (math.radians(-90)
+                             + math.radians(self.orientation)
+                            )
+        if not self.clockwise:
+            self._angle_start += self.length
         self._angle_end = self._angle_start
 
     def redraw(self, ctx, window, parent):
         value = parent.value
         origin = [window.width / 2, window.height / 2]
 
-        self._angle_end = self._angle_start + (value * self.length)
-        ctx.set_line_width(self.width)
+        if self.clockwise:
+            self._angle_end = self._angle_start + (value * self.length)
+            define_arc = ctx.arc
+        else:
+            self._angle_end = self._angle_start - (value * self.length)
+            define_arc = ctx.arc_negative
 
-        ctx.arc(
+        ctx.set_line_width(self.width)
+        define_arc(
             origin[0] + self.position[0],
             origin[1] - self.position[1],
             self.radius,
@@ -44,26 +55,30 @@ class Plugin(Indicator):
 
             if isinstance(source, cairo.SolidPattern):
                 r, g, b, a = ctx.get_source().get_rgba()
-                a = a / 2
+                a = a / 3
             else:
-                r, g, b, a = 0, 0, 0, 0.5
+                r, g, b, a = 0, 0, 0, 0.333
 
             ctx.set_source_rgba(r, g, b, a)
 
             if self._angle_end != self._angle_start:
-                ctx.arc(
+                if self.clockwise:
+                    bkgnd_end = self._angle_start + self.length
+                else:
+                    bkgnd_end = self._angle_start - self.length
+                define_arc(
                     origin[0] + self.position[0],
                     origin[1] - self.position[1],
                     self.radius,
                     self._angle_end,
-                    self._angle_start,
+                    bkgnd_end,
                 )
             else:
-                ctx.arc(
+                define_arc(
                     origin[0] + self.position[0],
                     origin[1] - self.position[1],
                     self.radius,
                     self._angle_start,
-                    self._angle_start + self.length,
+                    bkgnd_end,
                 )
             ctx.stroke()

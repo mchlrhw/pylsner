@@ -6,8 +6,6 @@ from pylsner.plugin import Fill
 class Plugin(Fill):
 
     def __init__(self, form='rgba', color=[1, 1, 1, 1]):
-        super().__init__()
-
         if form == 'rgba':
             assert(len(color) == 4)
         elif form == 'rgb':

@@ -9,9 +9,7 @@ from pylsner import plugin
 class Window(Gtk.Window):
 
     def __init__(self):
-        super(Window, self).__init__(skip_pager_hint=True,
-                                     skip_taskbar_hint=True,
-                                    )
+        super().__init__(skip_pager_hint=True, skip_taskbar_hint=True)
         self.set_title('Pylsner')
 
         screen = self.get_screen()
@@ -41,6 +39,12 @@ class Window(Gtk.Window):
 
         self.show_all()
 
+    def init_widgets(self, config):
+        self.widgets = []
+        for widget_spec in config['widgets']:
+            widget = Widget(**widget_spec)
+            self.widgets.append(widget)
+
     def refresh(self, force=False):
         self.refresh_cnt += 1
         if self.refresh_cnt >= 60000:
@@ -48,7 +52,7 @@ class Window(Gtk.Window):
         redraw_required = False
         for widget in self.widgets:
             if (self.refresh_cnt % widget.refresh_rate == 0) or force:
-                widget.refresh()
+                widget.refresh(self.refresh_cnt)
                 redraw_required = True
         if redraw_required:
             self.queue_draw()
@@ -85,14 +89,14 @@ class Widget:
         except AttributeError:
             return cairo.SolidPattern(1, 1, 1)
 
-    def refresh(self):
-        self.metric.refresh(self)
+    def refresh(self, refresh_cnt):
+        self.metric.refresh(self, refresh_cnt)
         for attr_name in dir(self):
             if attr_name == 'metric' or attr_name.startswith('__'):
                 continue
             attr = getattr(self, attr_name)
             if isinstance(attr, plugin.Stateful):
-                attr.refresh(self)
+                attr.refresh(self, refresh_cnt)
 
     def redraw(self, ctx, window):
         ctx.set_source(self.pattern)

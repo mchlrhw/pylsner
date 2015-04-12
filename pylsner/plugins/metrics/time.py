@@ -7,7 +7,7 @@ from pylsner.plugin import Metric, MetricStore
 
 class Plugin(Metric):
 
-    def __init__(self, unit='seconds', refresh_rate=1):
+    def __init__(self, unit='seconds', refresh_rate=10):
         super().__init__(unit, refresh_rate)
 
         self.store = TimeStore()
@@ -97,6 +97,8 @@ class Plugin(Metric):
 
 
 class TimeStore(MetricStore):
+
+    _shared_state = {}
 
     def __init__(self):
         super().__init__()

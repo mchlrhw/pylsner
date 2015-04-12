@@ -13,7 +13,7 @@ class Plugin(Indicator):
                  position=[0, 0],
                  radius=100,
                  clockwise=True,
-                 background=False,
+                 background=True,
                 ):
         length = math.radians(360) * (length / 100)
         super().__init__(length, width, orientation, position)
@@ -62,23 +62,18 @@ class Plugin(Indicator):
             ctx.set_source_rgba(r, g, b, a)
 
             if self._angle_end != self._angle_start:
-                if self.clockwise:
-                    bkgnd_end = self._angle_start + self.length
-                else:
-                    bkgnd_end = self._angle_start - self.length
-                define_arc(
-                    origin[0] + self.position[0],
-                    origin[1] - self.position[1],
-                    self.radius,
-                    self._angle_end,
-                    bkgnd_end,
-                )
+                bkgnd_start = self._angle_end
             else:
-                define_arc(
-                    origin[0] + self.position[0],
-                    origin[1] - self.position[1],
-                    self.radius,
-                    self._angle_start,
-                    bkgnd_end,
-                )
+                bkgnd_start = self._angle_start
+            if self.clockwise:
+                bkgnd_end = self._angle_start + self.length
+            else:
+                bkgnd_end = self._angle_start - self.length
+            define_arc(
+                origin[0] + self.position[0],
+                origin[1] - self.position[1],
+                self.radius,
+                bkgnd_start,
+                bkgnd_end,
+            )
             ctx.stroke()

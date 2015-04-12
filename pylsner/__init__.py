@@ -25,31 +25,37 @@ Loader.add_constructor('!include', Loader.include)
 
 def main():
     main_win = gui.Window()
-    reload_config(main_win)
+    load_config(main_win)
 
     GLib.timeout_add(1, main_win.refresh)
-    GLib.timeout_add(1000, reload_config, main_win)
+    GLib.timeout_add(1000, load_config, main_win)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     Gtk.main()
 
 
-def reload_config(window):
-    if 'mtime' not in reload_config.__dict__:
-        reload_config.mtime = 0
-    config_path = 'etc/pylsner/config.yml'
-    config_mtime = os.path.getmtime(config_path)
-    widgets_path = 'etc/pylsner/widgets.yml'
-    widgets_mtime = os.path.getmtime(widgets_path)
-    reload_required = False
-    if config_mtime > reload_config.mtime:
-        reload_config.mtime = config_mtime
-        reload_required = True
-    if widgets_mtime > reload_config.mtime:
-        reload_config.mtime = widgets_mtime
-        reload_required = True
+def load_config(window):
+    reload_required = check_config()
     if reload_required:
-        with open(config_path) as config_file:
-            config = yaml.load(config_file, Loader)
-        window.init_widgets(config)
-        window.refresh(True)
+        reload_config(window)
     return True
+
+
+def check_config():
+    if 'mtime' not in check_config.__dict__:
+        check_config.mtime = 0
+    config_dir_path = 'etc/pylsner'
+    for filename in os.listdir(config_dir_path):
+        file_path = os.path.join(config_dir_path, filename)
+        mtime = os.path.getmtime(file_path)
+        if mtime > check_config.mtime:
+            check_config.mtime = mtime
+            return True
+    return False
+
+
+def reload_config(window):
+    config_path = 'etc/pylsner/config.yml'
+    with open(config_path) as config_file:
+        config = yaml.load(config_file, Loader)
+    window.init_widgets(config)
+    window.refresh(True)

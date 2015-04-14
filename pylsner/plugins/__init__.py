@@ -1,33 +1,25 @@
 import cairo
 
-from numbers import Number
 
+class Metric():
 
-class Drawable:
-
-    def redraw(self, ctx, window, parent):
-        raise NotImplementedError
-
-
-class Stateful:
-
-    def refresh(self, parent, refresh_cnt):
-        raise NotImplementedError
-
-
-class Metric(Stateful):
-
-    def __init__(self, unit, refresh_rate):
+    def __init__(self, unit):
         self.unit = unit
-        self.refresh_rate = refresh_rate
+        self.refresh_cnt = 0
+        self.store = MetricStore()
 
     def set_limits(self, minimum=None, maximum=None):
-        if isinstance(minimum, Number):
+        if minimum or minimum == 0:
             self._min = minimum
-        if isinstance(maximum, Number):
+        if maximum or maximum == 0:
             self._max = maximum
         assert(self._max >= self._min)
         self._range = self._max - self._min
+
+    def refresh(self, cnt):
+        if cnt != self.refresh_cnt:
+            self._refresh()
+            self.refresh_cnt = cnt
 
     @property
     def value(self):
@@ -36,28 +28,22 @@ class Metric(Stateful):
 
 class MetricStore:
 
+    _shared_state = {}
+
     def __init__(self):
         self.__dict__ = self._shared_state
-        self.value = None
-        self.refresh_cnt = None
-
-    def get_value(self, refresh_cnt):
-        if refresh_cnt != self.refresh_cnt:
-            self.refresh()
-            self.refresh_cnt = refresh_cnt
-        return self.value
-
-    def refresh(self):
-        raise NotImplementedError
 
 
-class Indicator(Drawable):
+class Indicator(Gtk.DrawingArea):
 
     def __init__(self, length, width, orientation, position):
         self.length = length
         self.width = width
         self.orientation = orientation
         self.position = position
+
+    def redraw(self, ctx):
+        pass
 
 
 class Fill:

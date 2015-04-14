@@ -1,105 +1,26 @@
 ---
-- name: cpu_util
-  metric:
-    plugin: cpu_smooth
-    unit: per_core
-    core: 1
-  indicator:
-    plugin: arc
-    length: 25
-    width: 4
-    orientation: -45
-    radius: 225
-  fill:
-    plugin: solid
-    form: hex
-    color: "444444"
-
-- name: cpu_util
-  metric:
-    plugin: cpu_smooth
-    unit: per_core
-    core: 2
-  indicator:
-    plugin: arc
-    length: 25
-    width: 4
-    orientation: -45
-    radius: 220
-  fill:
-    plugin: solid
-    form: hex
-    color: "444444"
-
-- name: cpu_util
-  metric:
-    plugin: cpu_smooth
-    unit: per_core
-    core: 3
-  indicator:
-    plugin: arc
-    length: 25
-    width: 4
-    orientation: -45
-    radius: 215
-  fill:
-    plugin: solid
-    form: hex
-    color: "444444"
-
-- name: cpu_util
-  metric:
-    plugin: cpu_smooth
-    unit: per_core
-    core: 4
-  indicator:
-    plugin: arc
-    length: 25
-    width: 4
-    orientation: -45
-    radius: 210
-  fill:
-    plugin: solid
-    form: hex
-    color: "444444"
-
 - name: time_secs
+  refresh_rate: 50
   metric:
     plugin: time
     unit: seconds
-    refresh_rate: 50
   indicator:
     plugin: arc
-    length: 100
     width: 6
-    orientation: 0
-#    position: [530, 370]
     radius: 140
   fill:
     plugin: solid
     form: hex
     color: "444444"
-#    plugin: trans_test
-#    form: rgb_255
-#    color_stops:
-#      17: [255, 0, 0]
-#      33: [255, 255, 0]
-#      50: [0, 255, 0]
-#      67: [0, 255, 255]
-#      83: [0, 0, 255]
-#      100: [255, 0, 255]
 
 - name: time_mins
+  refresh_rate: 500
   metric:
     plugin: time
     unit: minutes
-    refresh_rate: 500
   indicator:
     plugin: arc
-    length: 100
     width: 8
-    orientation: 0
-#    position: [530, 370]
     radius: 122
   fill:
     plugin: trans_test
@@ -113,17 +34,13 @@
       100: [255, 0, 255]
 
 - name: time_hrs
+  refresh_rate: 10000
   metric:
     plugin: time
     unit: hours
-    refresh_rate: 10000
   indicator:
     plugin: arc
-    length: 100
     width: 12
-    orientation: 0
-#    position: [530, 370]
-    radius: 100
   fill:
     plugin: trans_test
     form: rgb_255
@@ -136,16 +53,14 @@
       100: [255, 0, 255]
 
 - name: time_week
+  refresh_rate: 60000
   metric:
     plugin: time
     unit: week
-    refresh_rate: 60000
   indicator:
     plugin: arc
     length: 25
-    width: 10
     orientation: 45
-#    position: [530, 370]
     radius: 180
     clockwise: false
   fill:
@@ -160,16 +75,14 @@
       100: [255, 0, 255]
 
 - name: time_month
+  refresh_rate: 60000
   metric:
     plugin: time
     unit: month
-    refresh_rate: 60000
   indicator:
     plugin: arc
     length: 25
-    width: 10
     orientation: 45
-#    position: [530, 370]
     radius: 200
     clockwise: false
   fill:
@@ -184,16 +97,14 @@
       100: [255, 0, 255]
 
 - name: time_year
+  refresh_rate: 60000
   metric:
     plugin: time
     unit: year
-    refresh_rate: 60000
   indicator:
     plugin: arc
     length: 25
-    width: 10
     orientation: 225
-#    position: [530, 370]
     radius: 180
   fill:
     plugin: trans_test
@@ -207,16 +118,14 @@
       100: [255, 0, 255]
 
 - name: time_century
+  refresh_rate: 60000
   metric:
     plugin: time
     unit: century
-    refresh_rate: 60000
   indicator:
     plugin: arc
     length: 25
-    width: 10
     orientation: 225
-#    position: [530, 370]
     radius: 200
   fill:
     plugin: trans_test

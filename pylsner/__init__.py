@@ -28,6 +28,7 @@ class Pylsner:
     def __init__(self):
         self.desklets = []
         self.tick_cnt = 0
+        self.config_mtime = 0
 
     def main(self):
         self.load_config()
@@ -48,30 +49,28 @@ class Pylsner:
     def load_config(self):
         reload_required = self.check_config()
         if reload_required:
-            reload_config()
+            self.reload_config()
         return True
 
     def check_config(self):
-        if 'mtime' not in check_config.__dict__:
-            check_config.mtime = 0
         config_dir_path = 'etc/pylsner'
         for filename in os.listdir(config_dir_path):
             file_path = os.path.join(config_dir_path, filename)
             mtime = os.path.getmtime(file_path)
-            if mtime > check_config.mtime:
-                check_config.mtime = mtime
+            if mtime > self.config_mtime:
+                self.config_mtime = mtime
                 return True
         return False
 
     def reload_config(self):
         config_path = 'etc/pylsner/config.yml'
         with open(config_path) as config_file:
-            config = yaml.safe_load(config_file, Loader)
+            config = yaml.load(config_file, Loader)
         self.desklets = self.init_desklets(config)
         for desklet in self.desklets:
             desklet.refresh()
 
-    def init_desklets(self):
+    def init_desklets(self, config):
         desklets = []
         for desklet_spec in config['desklets']:
             desklet = gui.Desklet(**desklet_spec)

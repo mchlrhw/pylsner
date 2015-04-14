@@ -1,6 +1,6 @@
 import psutil
 
-from pylsner.plugin import Metric, MetricStore
+from pylsner.plugins import Metric, MetricStore
 
 
 class Plugin(Metric):

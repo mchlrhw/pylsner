@@ -1,6 +1,6 @@
 import cairo
 
-from pylsner.plugin import Fill
+from pylsner.plugins import Fill
 
 
 class Plugin(Fill):

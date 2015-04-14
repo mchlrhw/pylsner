@@ -23,39 +23,57 @@ class Loader(yaml.Loader):
 Loader.add_constructor('!include', Loader.include)
 
 
-def main():
-    main_win = gui.Window()
-    load_config(main_win)
+class Pylsner:
 
-    GLib.timeout_add(1, main_win.refresh)
-    GLib.timeout_add(1000, load_config, main_win)
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-    Gtk.main()
+    def __init__(self):
+        self.desklets = []
+        self.tick_cnt = 0
 
+    def main(self):
+        self.load_config()
 
-def load_config(window):
-    reload_required = check_config()
-    if reload_required:
-        reload_config(window)
-    return True
+        GLib.timeout_add(1, self.tick)
+        GLib.timeout_add(1000, self.load_config)
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+        Gtk.main()
 
-def check_config():
-    if 'mtime' not in check_config.__dict__:
-        check_config.mtime = 0
-    config_dir_path = 'etc/pylsner'
-    for filename in os.listdir(config_dir_path):
-        file_path = os.path.join(config_dir_path, filename)
-        mtime = os.path.getmtime(file_path)
-        if mtime > check_config.mtime:
-            check_config.mtime = mtime
-            return True
-    return False
+    def tick(self):
+        self.tick_cnt += 1
+        if self.tick_cnt >= 60000:
+            self.tick_cnt = 0
+        for desklet in self.desklets:
+            desklet.refresh(self.tick_cnt)
 
+    def load_config(self):
+        reload_required = self.check_config()
+        if reload_required:
+            reload_config()
+        return True
 
-def reload_config(window):
-    config_path = 'etc/pylsner/config.yml'
-    with open(config_path) as config_file:
-        config = yaml.load(config_file, Loader)
-    window.init_widgets(config)
-    window.refresh(True)
+    def check_config(self):
+        if 'mtime' not in check_config.__dict__:
+            check_config.mtime = 0
+        config_dir_path = 'etc/pylsner'
+        for filename in os.listdir(config_dir_path):
+            file_path = os.path.join(config_dir_path, filename)
+            mtime = os.path.getmtime(file_path)
+            if mtime > check_config.mtime:
+                check_config.mtime = mtime
+                return True
+        return False
+
+    def reload_config(self):
+        config_path = 'etc/pylsner/config.yml'
+        with open(config_path) as config_file:
+            config = yaml.safe_load(config_file, Loader)
+        self.desklets = self.init_desklets(config)
+        for desklet in self.desklets:
+            desklet.refresh()
+
+    def init_desklets(self):
+        desklets = []
+        for desklet_spec in config['desklets']:
+            desklet = gui.Desklet(**desklet_spec)
+            desklets.append(desklet)
+        return desklets

@@ -1,6 +1,6 @@
 import cairo
 
-from pylsner.plugin import Fill, Stateful
+from pylsner.plugins import Fill, Stateful
 
 
 class Plugin(Fill, Stateful):

@@ -1,7 +1,8 @@
 import cairo
 import math
 
-from pylsner.plugin import Indicator
+from pylsner import gui
+from pylsner.plugins import Indicator
 
 
 class Plugin(Indicator):
@@ -28,6 +29,15 @@ class Plugin(Indicator):
         if not self.clockwise:
             self._angle_start += self.length
         self._angle_end = self._angle_start
+
+        max_radius = self.radius + self.width
+        top_left = [self.position[0] - max_radius,
+                    self.position[1] + max_radius,
+                   ]
+        btm_rght = [self.position[0] + max_radius,
+                    self.position[1] - max_radius,
+                   ]
+        self.bounding_box = gui.BoundingBox(top_left, btm_rght)
 
     def redraw(self, ctx, window, parent):
         value = parent.value

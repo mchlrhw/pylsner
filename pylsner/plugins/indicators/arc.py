@@ -39,9 +39,9 @@ class Plugin(Indicator):
                    ]
         self.bounding_box = gui.BoundingBox(top_left, btm_rght)
 
-    def redraw(self, ctx, window, parent):
+    def redraw(self, ctx, parent):
         value = parent.value
-        origin = [window.width / 2, window.height / 2]
+        origin = [parent.width / 2, parent.height / 2]
 
         if self.clockwise:
             self._angle_end = self._angle_start + (value * self.length)

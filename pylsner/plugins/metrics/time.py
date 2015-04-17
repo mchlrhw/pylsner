@@ -7,8 +7,8 @@ from pylsner.plugins import Metric, MetricStore
 
 class Plugin(Metric):
 
-    def __init__(self, unit='seconds', refresh_rate=10):
-        super().__init__(unit, refresh_rate)
+    def __init__(self, unit='seconds'):
+        super().__init__(unit)
 
         self.store = TimeStore()
 
@@ -91,17 +91,13 @@ class Plugin(Metric):
             + ((now.timetuple().tm_yday - 1) / 365)
         )
 
-    def refresh(self, parent, refresh_cnt):
-        now = self.store.get_value(refresh_cnt)
-        self._set_value(now)
+    def _refresh(self):
+        self._set_value(self.store.now)
 
 
 class TimeStore(MetricStore):
 
     _shared_state = {}
 
-    def __init__(self):
-        super().__init__()
-
-    def refresh(self):
-        self.value = datetime.now()
+    def _refresh(self):
+        self.now = datetime.now()

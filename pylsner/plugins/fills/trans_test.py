@@ -1,14 +1,14 @@
 import cairo
 
-from pylsner.plugins import Fill, Stateful
+from pylsner.plugins import Fill
 
 
-class Plugin(Fill, Stateful):
+class Plugin(Fill):
 
     def __init__(self, form='rgba', color_stops={0: [0, 0, 0, 1]}):
         self.color_stops = color_stops
 
-    def refresh(self, parent, refresh_cnt):
+    def _refresh(self, parent):
         value = parent.value
         sector = value * 6
         if sector < 1:

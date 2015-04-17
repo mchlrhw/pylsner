@@ -45,6 +45,7 @@ class Pylsner:
             self.tick_cnt = 0
         for desklet in self.desklets:
             desklet.refresh(self.tick_cnt)
+        return True
 
     def load_config(self):
         reload_required = self.check_config()

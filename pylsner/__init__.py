@@ -2,8 +2,8 @@ import os
 import signal
 import yaml
 
-from gi.repository import Gtk
 from gi.repository import GLib
+from gi.repository import Gtk
 
 from pylsner import gui
 
@@ -48,12 +48,12 @@ class Pylsner:
         return True
 
     def load_config(self):
-        reload_required = self.check_config()
+        reload_required = self.check_config_mtime()
         if reload_required:
             self.reload_config()
         return True
 
-    def check_config(self):
+    def check_config_mtime(self):
         config_dir_path = 'etc/pylsner'
         for filename in os.listdir(config_dir_path):
             file_path = os.path.join(config_dir_path, filename)

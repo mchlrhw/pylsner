@@ -22,7 +22,7 @@ class Plugin(Fill):
             assert(len(color) == 6 or len(color) == 7)
             color = _hex_to_rgb(color)
 
-        self._pattern = cairo.SolidPattern(*color)
+        self.pattern = cairo.SolidPattern(*color)
 
 
 def _reduce_to_frac(color):

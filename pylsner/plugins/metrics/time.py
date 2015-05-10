@@ -91,7 +91,7 @@ class Plugin(Metric):
             + ((now.timetuple().tm_yday - 1) / 365)
         )
 
-    def _refresh(self):
+    def refresh(self, value):
         self._set_value(self.store.now)
 
 
@@ -99,5 +99,5 @@ class TimeStore(MetricStore):
 
     _shared_state = {}
 
-    def _refresh(self):
+    def refresh(self, cnt):
         self.now = datetime.now()

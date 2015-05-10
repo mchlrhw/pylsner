@@ -19,12 +19,12 @@ class Metric:
         assert(self._max >= self._min)
         self._range = self._max - self._min
 
-    def refresh(self, cnt, parent=None):
-        self.store.refresh(cnt)
-        self._refresh()
+    def _refresh(self, cnt, value):
+        self.store._refresh(cnt)
+        self.refresh(value)
 
-    def _refresh(self):
-        pass
+    def refresh(self, value):
+        ...
 
     @property
     def value(self):
@@ -38,44 +38,41 @@ class MetricStore:
     def __init__(self):
         self.__dict__ = self._shared_state
         self.refresh_cnt = 0
-        self._refresh()
+        self.refresh(self.refresh_cnt)
 
-    def refresh(self, cnt, parent=None):
+    def _refresh(self, cnt):
         if cnt != self.refresh_cnt:
             self.refresh_cnt = cnt
-            self._refresh()
+            self.refresh(cnt)
 
-    def _refresh(self):
-        pass    
+    def refresh(self, cnt):
+        ...
 
 
-class Indicator(Gtk.DrawingArea):
+class Indicator:
 
-    def __init__(self, length, width, orientation, position):
+    def __init__(self, length, width, orientation, position, background):
         self.length = length
         self.width = width
         self.orientation = orientation
-        self.position = position
-        self.bounding_box = pylsner.gui.BoundingBox()
+        self.position = pylsner.gui.Coord(*position)
+        self.background = background
 
-    def redraw(self, ctx):
-        pass
+    @property
+    def boundary(self):
+        return pylsner.gui.BoundingBox()
+
+    def redraw(self, ctx, value):
+        ...
 
 
 class Fill:
 
     def __init__(self):
-        self._pattern = cairo.SolidPattern(1, 1, 1)
+        self.pattern = cairo.SolidPattern(1, 1, 1)
 
-    @property
-    def pattern(self):
-        return self._pattern
-
-    def refresh(self, cnt=None, parent=None):
-        self._refresh(parent)
-
-    def _refresh(self, parent=None):
-        pass
+    def refresh(self, cnt, value):
+        ...
 
 
 def load_plugin(plugin_type, plugin_name):

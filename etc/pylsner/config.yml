@@ -1,5 +1,2 @@
 ---
-desklets:
-  - name: 'clock'
-    position: [0, 0]
-    widgets: !include clock_widgets.yml
+widgets: !include widgets.yml

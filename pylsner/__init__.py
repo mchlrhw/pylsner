@@ -26,25 +26,26 @@ Loader.add_constructor('!include', Loader.include)
 class Pylsner:
 
     def __init__(self):
-        self.desklets = []
+        self.widgets = []
         self.tick_cnt = 0
         self.config_mtime = 0
+        self.interval = 50
 
-    def main(self):
+    def run(self):
         self.load_config()
 
-        GLib.timeout_add(1, self.tick)
-        GLib.timeout_add(1000, self.load_config)
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-        Gtk.main()
+        while True:
+            GLib.timeout_add(self.interval, self.tick)
+            GLib.timeout_add(1000, self.load_config)
+            signal.signal(signal.SIGINT, signal.SIG_DFL)
+            Gtk.main()
 
     def tick(self):
-        self.tick_cnt += 1
+        self.tick_cnt += self.interval
         if self.tick_cnt >= 60000:
             self.tick_cnt = 0
-        for desklet in self.desklets:
-            desklet.refresh(self.tick_cnt)
+        for widget in self.widgets:
+            widget.refresh(self.tick_cnt)
         return True
 
     def load_config(self):
@@ -56,6 +57,8 @@ class Pylsner:
     def check_config_mtime(self):
         config_dir_path = 'etc/pylsner'
         for filename in os.listdir(config_dir_path):
+            if filename.startswith('.'):
+                continue
             file_path = os.path.join(config_dir_path, filename)
             mtime = os.path.getmtime(file_path)
             if mtime > self.config_mtime:
@@ -67,13 +70,15 @@ class Pylsner:
         config_path = 'etc/pylsner/config.yml'
         with open(config_path) as config_file:
             config = yaml.load(config_file, Loader)
-        self.desklets = self.init_desklets(config)
-        for desklet in self.desklets:
-            desklet.refresh()
+        for widget in self.widgets:
+            widget.destroy()
+        self.widgets = self.init_widgets(config)
+        for widget in self.widgets:
+            widget.refresh()
 
-    def init_desklets(self, config):
-        desklets = []
-        for desklet_spec in config['desklets']:
-            desklet = gui.Desklet(**desklet_spec)
-            desklets.append(desklet)
-        return desklets
+    def init_widgets(self, config):
+        widgets = []
+        for widget_spec in config['widgets']:
+            widget = gui.Widget(**widget_spec)
+            widgets.append(widget)
+        return widgets

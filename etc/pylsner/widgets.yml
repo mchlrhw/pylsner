@@ -52,6 +52,26 @@
       83: [0, 0, 255]
       100: [255, 0, 255]
 
+- name: time_day
+  refresh_rate: 10000
+  metric:
+    plugin: time
+    unit: day
+  indicator:
+    plugin: arc
+    width: 3
+    radius: 92
+  fill:
+    plugin: trans_test
+    form: rgb_255
+    color_stops:
+      17: [255, 0, 0]
+      33: [255, 255, 0]
+      50: [0, 255, 0]
+      67: [0, 255, 255]
+      83: [0, 0, 255]
+      100: [255, 0, 255]
+
 - name: time_week
   refresh_rate: 60000
   metric:

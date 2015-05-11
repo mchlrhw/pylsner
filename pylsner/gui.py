@@ -1,19 +1,30 @@
 import cairo
 
+from collections import namedtuple
 from gi.repository import Gtk
 from gi.repository import Gdk
 
 from pylsner import plugins
 
 
+Coord = namedtuple('Coord', ['x', 'y'])
+
+
 class Window(Gtk.Window):
 
-    def __init__(self):
+    def __init__(self, name='default', position=[0, 0]):
         super().__init__(skip_pager_hint=True, skip_taskbar_hint=True)
-        self.set_title('Pylsner - {}'.format(self.name))
+
+        self.name = name
+        self.set_title('Pylsner - ' + self.name)
+        self.position = Coord(*position)
+        self.width, self.height = self.get_size()
+        self.origin = Coord(self.width / 2, self.height / 2)
 
         screen = self.get_screen()
-        self.origin = [screen.width() / 2, screen.height() / 2]
+        o_x = screen.width() / 2
+        o_y = screen.height() / 2
+        self._screen_origin = Coord(o_x, o_y)
 
         rgba = screen.get_rgba_visual()
         self.set_visual(rgba)
@@ -26,144 +37,124 @@ class Window(Gtk.Window):
         self.stick()
         self.set_keep_below(True)
 
+        drawing_area = Gtk.DrawingArea()
+        self.add(drawing_area)
+
         self.connect('destroy', lambda q: Gtk.main_quit())
-
-
-class Desklet(Window):
-
-    def __init__(self, name='default', position=[0, 0], widgets=[]):
-        self.name = name
-        self.position = position
-        self.bounding_box = BoundingBox()
-
-        super().__init__()
-        self.init_widgets(widgets)
-
         self.connect('draw', self.redraw)
-        self.show_all()
 
-    def init_widgets(self, config):
-        self.bounding_box = BoundingBox()
+    def move(self, x, y):
+        x += self._screen_origin.x - (self.width / 2)
+        y = -y
+        y += self._screen_origin.y - (self.height / 2)
+        super().move(x, y)
 
-        self.widgets = []
-        for widget_spec in config:
-            widget = Widget(**widget_spec)
-            self.widgets.append(widget)
+    def resize(self, width, height):
+        super().resize(width, height)
+        self.width = width
+        self.height = height
+        self.origin = Coord(self.width / 2, self.height / 2)
+        self.move(*self.position)
 
-        for widget in self.widgets:
-            self.bounding_box.encompass(widget.bounding_box)
-        for widget in self.widgets:
-            widget.bounding_box.resize(*self.bounding_box.dimensions,
-                                       absolute=True
-                                      )
-        
+    def redraw(self, _, ctx):
+        ...
 
-        self.resize(*self.bounding_box.dimensions)
-        self.move(self.position[0] + self.origin[0] - (self.width / 2),
-                  self.position[1] + self.origin[1] - (self.height / 2),
-                 )
-
-    @property
-    def width(self):
-        return self.bounding_box.width
-
-    @property
-    def height(self):
-        return self.bounding_box.height
-
-    def refresh(self, cnt=0):
-        redraw_required = False
-        for widget in self.widgets:
-            refreshed = widget.refresh(cnt)
-            if refreshed:
-                redraw_required = True
-        if redraw_required:
-            self.queue_draw()
-
-    def redraw(self, gtk_widget, ctx):
-        ctx.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
-        for widget in self.widgets:
-            widget.redraw(ctx)
+    def refresh(self, cnt):
+        ...
 
 
 class BoundingBox:
 
-    def __init__(self, top_left=[0, 0], btm_rght=[0, 0]):
-        self.top_left = top_left
-        self.btm_rght = btm_rght
+    def __init__(self, top_left=[-1, 1], btm_rght=[1, -1]):
+        self.top_left = Coord(*top_left)
+        self.btm_rght = Coord(*btm_rght)
 
-        self.resize()
+    @property
+    def width(self):
+        return self.btm_rght.x - self.top_left.x
 
-    def resize(self, width=0, height=0, absolute=False):
-        if absolute:
-            self.width = width
-            self.height = height
-        else:
-            self.width = self.btm_rght[0] - self.top_left[0]
-            self.height = self.top_left[1] - self.btm_rght[1]
+    @property
+    def height(self):
+        return self.top_left.y - self.btm_rght.y
 
     @property
     def dimensions(self):
         return self.width, self.height
 
-    def encompass(self, bounding_box=None, top_left=[0, 0], btm_rght=[0, 0]):
-        if not bounding_box:
-            bounding_box = BoundingBox(top_left, btm_rght)
+    def encompass(self, other):
+        if self.top_left.x > other.top_left.x:
+            top_left_x = other.top_left.x
+        else:
+            top_left_x = self.top_left.x
+        if self.top_left.y < other.top_left.y:
+            top_left_y = other.top_left.y
+        else:
+            top_left_y = self.top_left.y
+        if self.btm_rght.x < other.btm_rght.x:
+            btm_rght_x = other.btm_rght.x
+        else:
+            btm_rght_x = self.btm_rght.x
+        if self.btm_rght.y > other.btm_rght.y:
+            btm_rght_y = other.btm_rght.y
+        else:
+            btm_rght_y = self.btm_rght.y
 
-        if self.top_left[0] > bounding_box.top_left[0]:
-            self.top_left[0] = bounding_box.top_left[0]
-        if self.top_left[1] < bounding_box.top_left[1]:
-            self.top_left[1] = bounding_box.top_left[1]
-        if self.btm_rght[0] < bounding_box.btm_rght[0]:
-            self.btm_rght[0] = bounding_box.btm_rght[0]
-        if self.btm_rght[1] > bounding_box.btm_rght[1]:
-            self.btm_rght[1] = bounding_box.btm_rght[1]
+        self.top_left = Coord(top_left_x, top_left_y)
+        self.btm_rght = Coord(btm_rght_x, btm_rght_y)
 
-        self.resize()
+    def __repr__(self):
+        return 'BoundingBox({} x {} @ {})'.format(self.width,
+                                                  self.height,
+                                                  self.top_left,
+                                                 )
 
 
-class Widget:
+class Widget(Window):
 
     def __init__(self, **kwargs):
         self.name = kwargs.pop('name', 'default')
-        self.refresh_rate = kwargs.pop('refresh_rate', 10)
+        self.refresh_rate = kwargs.pop('refresh_rate', 500)
+        self.position = Coord(*kwargs.pop('position', [0, 0]))
+        super().__init__(self.name, self.position)
+
+        self.plugins = []
+        self.drawable_plugins = []
+        self.stateful_plugins = []
         for plugin_type, plugin_spec in kwargs.items():
             plugin_dir = plugin_type + 's'
             Plugin = plugins.load_plugin(plugin_dir, plugin_spec.pop('plugin'))
-            setattr(self, plugin_type, Plugin(**plugin_spec))
+            plugin = Plugin(**plugin_spec)
+            self.plugins.append(plugin)
 
-        try:
-            assert(hasattr(self, 'metric'))
-        except AssertionError:
-            print('Error: Widget must have a metric plugin as a minimum')
+            if hasattr(plugin, 'redraw'):
+                self.drawable_plugins.append(plugin)
+            if plugin_type in ['metric', 'fill']:
+                setattr(self, plugin_type, plugin)
+                if plugin_type == 'fill':
+                    self.stateful_plugins.append(plugin)
+            elif hasattr(plugin, 'refresh'):
+                self.stateful_plugins.append(plugin)
 
-        drawables = []
-        for attr_name in dir(self):
-            if attr_name.startswith('__') or attr_name in ['width', 'height']:
-                continue
-            attr = getattr(self, attr_name)
-            if hasattr(attr, 'bounding_box'):
-                drawables.append(attr)
+        boundary = BoundingBox()
+        for plugin in self.drawable_plugins:
+            if hasattr(plugin, 'boundary'):
+                boundary.encompass(plugin.boundary)
+        self.resize(*boundary.dimensions)
 
-        self.bounding_box = BoundingBox()
-        for drawable in drawables:
-            self.bounding_box.encompass(drawable.bounding_box)
-        for drawable in drawables:
-            drawable.bounding_box.resize(*self.bounding_box.dimensions,
-                                         absolute=True
-                                        )
+        for plugin in self.plugins:
+            if hasattr(plugin, 'position'):
+                x = plugin.position.x + self.origin.x
+                y = plugin.position.y + self.origin.y
+                plugin.position = Coord(x, y)
 
-    @property
-    def width(self):
-        return self.bounding_box.width
-
-    @property
-    def height(self):
-        return self.bounding_box.height
+        self.show_all()
 
     @property
     def value(self):
-        return self.metric.value
+        try:
+            return self.metric.value
+        except AttributeError:
+            return 0
 
     @property
     def pattern(self):
@@ -172,24 +163,21 @@ class Widget:
         except AttributeError:
             return cairo.SolidPattern(1, 1, 1)
 
-    def refresh(self, cnt):
+    def refresh(self, cnt=0):
         if cnt % self.refresh_rate == 0:
-            self.metric.refresh(cnt)
-            for attr_name in dir(self):
-                if attr_name == 'metric' or attr_name.startswith('__'):
-                    continue
-                attr = getattr(self, attr_name)
-                if hasattr(attr, 'refresh'):
-                    attr.refresh(cnt, self)
-            return True
-        else:
-            return False
+            try:
+                self.metric._refresh(cnt, self.value)
+            except AttributeError:
+                self.metric.refresh(cnt, self.value)
+            for plugin in self.stateful_plugins:
+                try:
+                    plugin._refresh(cnt, self.value)
+                except AttributeError:
+                    plugin.refresh(cnt, self.value)
+            self.queue_draw()
 
-    def redraw(self, ctx):
+    def redraw(self, _, ctx):
+        ctx.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
         ctx.set_source(self.pattern)
-        for attr_name in dir(self):
-            if attr_name.startswith('__'):
-                continue
-            attr = getattr(self, attr_name)
-            if hasattr(attr, 'redraw'):
-                attr.redraw(ctx, self)
+        for plugin in self.drawable_plugins:
+            plugin.redraw(ctx, self.value)

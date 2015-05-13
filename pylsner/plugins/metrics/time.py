@@ -5,7 +5,7 @@ from datetime import datetime
 from pylsner.plugins import Metric, MetricStore
 
 
-class Plugin(Metric):
+class Time(Metric):
 
     def __init__(self, unit='seconds'):
         super().__init__(unit)
@@ -101,3 +101,6 @@ class TimeStore(MetricStore):
 
     def refresh(self, cnt):
         self.now = datetime.now()
+
+
+Plugin = Time

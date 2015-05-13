@@ -5,7 +5,7 @@ from pylsner import gui
 from pylsner.plugins import Indicator
 
 
-class Plugin(Indicator):
+class Arc(Indicator):
 
     def __init__(self,
                  length=100,
@@ -85,3 +85,6 @@ class Plugin(Indicator):
                 bkgnd_end,
             )
             ctx.stroke()
+
+
+Plugin = Arc

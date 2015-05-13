@@ -3,7 +3,7 @@ import cairo
 from pylsner.plugins import Fill
 
 
-class Plugin(Fill):
+class Solid(Fill):
 
     def __init__(self, form='rgba', color=[1, 1, 1, 1]):
         if form == 'rgba':
@@ -38,3 +38,6 @@ def _hex_to_rgb(hex_str):
         color.append(int(hex_str[i:i + (str_len // 3)], 16))
     color = _reduce_to_frac(color)
     return color
+
+
+Plugin = Solid

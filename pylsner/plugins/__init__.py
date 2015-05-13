@@ -77,5 +77,5 @@ class Fill:
 
 def load_plugin(plugin_type, plugin_name):
     mod_str = 'pylsner.plugins.{}.{}'.format(plugin_type, plugin_name)
-    _temp_mod = __import__(mod_str, globals(), locals(), ['Plugin'])
-    return _temp_mod.Plugin
+    module = __import__(mod_str, locals(), globals(), ['Plugin'])
+    return module.Plugin

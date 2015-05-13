@@ -3,7 +3,7 @@ import cairo
 from pylsner.plugins import Fill
 
 
-class Plugin(Fill):
+class Transition(Fill):
 
     def __init__(self, form='rgba', color_stops={0: [0, 0, 0, 1]}):
         self.color_stops = color_stops
@@ -22,3 +22,6 @@ class Plugin(Fill):
             self.pattern = cairo.SolidPattern(sector - 4, 1, 0)
         elif sector < 6:
             self.pattern = cairo.SolidPattern(1, 6 - sector, 0)
+
+
+Plugin = Transition

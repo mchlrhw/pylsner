@@ -1,10 +1,11 @@
 import cairo
 import math
 
-from pylsner.plugin import Indicator
+from pylsner import gui
+from pylsner.plugins import Indicator
 
 
-class Plugin(Indicator):
+class Arc(Indicator):
 
     def __init__(self,
                  length=100,
@@ -16,11 +17,10 @@ class Plugin(Indicator):
                  background=True,
                 ):
         length = math.radians(360) * (length / 100)
-        super().__init__(length, width, orientation, position)
+        super().__init__(length, width, orientation, position, background)
 
         self.radius = radius
         self.clockwise = clockwise
-        self.background = background
 
         self._angle_start = (math.radians(-90)
                              + math.radians(self.orientation)
@@ -29,21 +29,29 @@ class Plugin(Indicator):
             self._angle_start += self.length
         self._angle_end = self._angle_start
 
-    def redraw(self, ctx, window, parent):
-        value = parent.value
-        origin = [window.width / 2, window.height / 2]
+    @property
+    def boundary(self):
+        max_radius = self.radius + (self.width / 2)
+        top_left = gui.Coord(self.position.x - max_radius,
+                             self.position.y + max_radius,
+                            )
+        btm_rght = gui.Coord(self.position.x + max_radius,
+                             self.position.y - max_radius,
+                            )
+        return gui.BoundingBox(top_left, btm_rght)
 
+    def redraw(self, ctx, value):
         if self.clockwise:
             self._angle_end = self._angle_start + (value * self.length)
-            define_arc = ctx.arc
+            arc = ctx.arc
         else:
             self._angle_end = self._angle_start - (value * self.length)
-            define_arc = ctx.arc_negative
+            arc = ctx.arc_negative
 
         ctx.set_line_width(self.width)
-        define_arc(
-            origin[0] + self.position[0],
-            origin[1] - self.position[1],
+        arc(
+            self.position.x,
+            self.position.y,
             self.radius,
             self._angle_start,
             self._angle_end,
@@ -69,11 +77,14 @@ class Plugin(Indicator):
                 bkgnd_end = self._angle_start + self.length
             else:
                 bkgnd_end = self._angle_start - self.length
-            define_arc(
-                origin[0] + self.position[0],
-                origin[1] - self.position[1],
+            arc(
+                self.position.x,
+                self.position.y,
                 self.radius,
                 bkgnd_start,
                 bkgnd_end,
             )
             ctx.stroke()
+
+
+Plugin = Arc

@@ -5,4 +5,5 @@ import pylsner
 
 
 if __name__ == '__main__':
-    pylsner.main()
+    app = pylsner.Pylsner()
+    app.run()

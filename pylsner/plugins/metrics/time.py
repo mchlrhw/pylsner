@@ -2,13 +2,13 @@ import calendar
 
 from datetime import datetime
 
-from pylsner.plugin import Metric, MetricStore
+from pylsner.plugins import Metric, MetricStore
 
 
-class Plugin(Metric):
+class Time(Metric):
 
-    def __init__(self, unit='seconds', refresh_rate=10):
-        super().__init__(unit, refresh_rate)
+    def __init__(self, unit='seconds'):
+        super().__init__(unit)
 
         self.store = TimeStore()
 
@@ -91,17 +91,16 @@ class Plugin(Metric):
             + ((now.timetuple().tm_yday - 1) / 365)
         )
 
-    def refresh(self, parent, refresh_cnt):
-        now = self.store.get_value(refresh_cnt)
-        self._set_value(now)
+    def refresh(self, value):
+        self._set_value(self.store.now)
 
 
 class TimeStore(MetricStore):
 
     _shared_state = {}
 
-    def __init__(self):
-        super().__init__()
+    def refresh(self, cnt):
+        self.now = datetime.now()
 
-    def refresh(self):
-        self.value = datetime.now()
+
+Plugin = Time

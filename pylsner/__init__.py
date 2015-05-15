@@ -8,6 +8,10 @@ from gi.repository import Gtk
 from pylsner import gui
 
 
+class ConfigNotFoundError(Exception):
+    pass
+
+
 class Loader(yaml.Loader):
 
     def __init__(self, stream):
@@ -30,6 +34,18 @@ class Pylsner:
         self.tick_cnt = 0
         self.config_mtime = 0
         self.interval = 50
+        self.config_dir_path = self.find_configs()
+
+    @staticmethod
+    def find_configs():
+        search_paths = ['~', '/etc', './etc']
+        for root in search_paths:
+            root = os.path.normpath(os.path.expanduser(root))
+            if os.path.isdir(os.path.join(root, 'pylsner')):
+                return os.path.join(root, 'pylsner')
+            elif os.path.isdir(os.path.join(root, '.pylsner')):
+                return os.path.join(root, '.pylsner')
+        raise ConfigNotFoundError
 
     def run(self):
         self.load_config()
@@ -55,11 +71,10 @@ class Pylsner:
         return True
 
     def check_config_mtime(self):
-        config_dir_path = 'etc/pylsner'
-        for filename in os.listdir(config_dir_path):
+        for filename in os.listdir(self.config_dir_path):
             if filename.startswith('.'):
                 continue
-            file_path = os.path.join(config_dir_path, filename)
+            file_path = os.path.join(self.config_dir_path, filename)
             mtime = os.path.getmtime(file_path)
             if mtime > self.config_mtime:
                 self.config_mtime = mtime
@@ -67,7 +82,7 @@ class Pylsner:
         return False
 
     def reload_config(self):
-        config_path = 'etc/pylsner/config.yml'
+        config_path = os.path.join(self.config_dir_path, 'config.yml')
         with open(config_path) as config_file:
             config = yaml.load(config_file, Loader)
         for widget in self.widgets:

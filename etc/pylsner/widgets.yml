@@ -23,7 +23,7 @@
     width: 8
     radius: 122
   fill:
-    plugin: trans_test
+    plugin: transition
     mode: names
     colors:
       0: red
@@ -43,7 +43,7 @@
     plugin: arc
     width: 12
   fill:
-    plugin: trans_test
+    plugin: transition
     mode: rgb
     colors:
       0: [1, 0, 0]
@@ -81,7 +81,7 @@
     radius: 180
     clockwise: false
   fill:
-    plugin: trans_test
+    plugin: transition
     mode: rgb
     colors:
       0: [1, 0, 0]
@@ -104,7 +104,7 @@
     radius: 200
     clockwise: false
   fill:
-    plugin: trans_test
+    plugin: transition
     mode: rgb
     colors:
       0: [1, 0, 0]
@@ -126,7 +126,7 @@
     orientation: 225
     radius: 180
   fill:
-    plugin: trans_test
+    plugin: transition
     mode: rgb
     colors:
       0: [1, 0, 0]
@@ -148,7 +148,7 @@
     orientation: 225
     radius: 200
   fill:
-    plugin: trans_test
+    plugin: transition
     mode: rgb
     colors:
       0: [1, 0, 0]

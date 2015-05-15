@@ -103,10 +103,8 @@ class BoundingBox:
         self.btm_rght = Coord(btm_rght_x, btm_rght_y)
 
     def __repr__(self):
-        return 'BoundingBox({} x {} @ {})'.format(self.width,
-                                                  self.height,
-                                                  self.top_left,
-                                                 )
+        rep = 'BoundingBox({} x {} @ {})'
+        return rep.format(self.width, self.height, self.top_left)
 
 
 class Widget(Window):

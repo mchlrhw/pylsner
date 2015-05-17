@@ -1,6 +1,6 @@
 import cairo
 
-from grapefruit.grapefruit import Color
+from pylsner.color import Color
 from pylsner.plugins import Fill
 
 
@@ -8,16 +8,7 @@ class Transition(Fill):
 
     def __init__(self, colors={0: [1, 1, 1]}, mode='rgb'):
         for stop, color in colors.items():
-            if mode == 'rgb' or mode == 'rgba':
-                color = Color.NewFromRgb(*color)
-            elif mode == 'rgb_255' or mode == 'rgba_255':
-                raw_color = color[:]
-                color = []
-                for comp in raw_color:
-                    color.append(comp / 255)
-                color = Color.NewFromRgb(*color)
-            elif (mode == 'hex' or mode == 'web' or mode == 'html' or mode == 'names'):
-                color = Color.NewFromHtml(color)
+            color = Color(color, mode=mode)
             colors[stop] = color
 
         if len(colors) == 1:

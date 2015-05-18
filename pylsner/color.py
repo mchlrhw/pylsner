@@ -310,7 +310,7 @@ class Color:
         elif mode in ('hex', 'html', 'name', 'web'):
             if mode == 'hex':
                 color = str(color)
-                color = color.rstrip('#')
+                color = color.lstrip('#')
                 try:
                     int(color, 16)
                 except ValueError:
@@ -2035,8 +2035,9 @@ def blend(c1, c2, percent=0.5):
 
 
 def _test():
+    import importlib
     import doctest
-    reload(doctest)
+    importlib.reload(doctest)
     doctest.testmod()
 
 

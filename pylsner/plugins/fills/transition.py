@@ -1,7 +1,7 @@
 import cairo
 
 from pylsner.color import Color
-from pylsner.plugins import Fill
+from pylsner.plugin import Fill
 
 
 class Transition(Fill):

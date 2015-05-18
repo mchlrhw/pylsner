@@ -2,7 +2,8 @@ import cairo
 
 from gi.repository import Gtk
 
-import pylsner
+from .core import BoundingBox
+from .core import Coord
 
 
 class Metric:
@@ -55,12 +56,12 @@ class Indicator:
         self.length = length
         self.width = width
         self.orientation = orientation
-        self.position = pylsner.gui.Coord(*position)
+        self.position = Coord(*position)
         self.background = background
 
     @property
     def boundary(self):
-        return pylsner.gui.BoundingBox()
+        return BoundingBox()
 
     def redraw(self, ctx, value):
         ...

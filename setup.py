@@ -1,10 +1,7 @@
 #!/usr/bin/python3
 
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from distutils.core import setup
 
 
 config = {
@@ -15,7 +12,13 @@ config = {
     'author': 'mrmrwat',
     'author_email': 'mrmrwat@github.com',
     'license': 'MIT',
-    'packages': ['pylsner'],
+    'packages': [
+        'pylsner',
+        'pylsner/plugins/fills',
+        'pylsner/plugins/indicators',
+        'pylsner/plugins/metrics',
+    ],
 }
+
 
 setup(**config)

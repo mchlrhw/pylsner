@@ -1,11 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Code for this module originates from the grapefruit color manipulation
-# package by Xavier Basty and Christian Oudard (xav and christian-oudard
-# on Github respectively).
-# The code presented here represents a fork of the original module.
-# The original license is presented below.
+'''\
+A module to perform quick and easy to use color conversions
+
+Code for this module originates from the grapefruit color manipulation
+package by Xavier Basty and Christian Oudard (xav and christian-oudard
+on Github respectively).
+The code presented here represents a fork of the original module.
+The original license is presented below:
 
 # Copyright (c) 2008, Xavier Basty
 #
@@ -20,6 +23,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+'''
 
 
 NAMED_COLOR = {
@@ -271,14 +275,6 @@ class Color:
       (30.0, 1.0, 1.0)
       >>> clr_1.lab
       (66.95182379630494, 0.4308396497520478, 0.7396923149088841)
-
-    Colors can also be added together and subtracted:
-
-      >>> clr_2 = Color((0, 0, 1))
-      >>> clr_1 + clr_2
-      (1.0, 0.5, 1.0, 1)
-      >>> clr_1 - clr_2
-      (1.0, 0.5, 0.0, 0)
     '''
 
     def __init__(self, color, alpha=1, *, mode='rgb', wref=DEFAULT_WREF):
@@ -361,21 +357,12 @@ class Color:
         except AttributeError:
             return False
 
-    def __add__(self, other):
-        dr = self.r + other.r
-        dg = self.g + other.g
-        db = self.b + other.b
-        da = self.a + other.a
-        drgb = (dr, dg, db)
-        return Color(drgb, da, wref=self.wref).nearest_legal()
-
     def __sub__(self, other):
         dr = self.r - other.r
         dg = self.g - other.g
         db = self.b - other.b
         da = self.a - other.a
-        drgb = (dr, dg, db)
-        return Color(drgb, da, wref=self.wref).nearest_legal()
+        return dr, dg, db, da
 
     def __repr__(self):
         return str(self.rgba)
@@ -1678,30 +1665,6 @@ def ryb_to_rgb(hue):
     return x0 + (x1 - x0) * d / 15
 
 
-def diff(c1, c2):
-
-    '''\
-    Return a tuple representing the difference between each component
-    of the two colors.
-    The values of the returned tuple can each be [-1...1]
-
-    Parameters:
-      :c1:
-        The first color
-      :c2:
-        The second color
-
-    Returns:
-        A tuple containing the difference between each component
-    '''
-
-    dr = c1.r - c2.r
-    dg = c1.g - c2.g
-    db = c1.b - c2.b
-    da = c1.a - c2.a
-    return (dr, db, dg, da)
-
-
 def websafe_dither(color):
 
     '''\
@@ -1759,7 +1722,6 @@ def gradient(c1, c2, steps=100):
         a = (rgba1[3] * (1 - d)) + (rgba2[3] * d)
 
         gradient.append(Color((r, g, b), a, wref=c1.wref))
-
     return gradient
 
 

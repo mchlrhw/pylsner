@@ -275,6 +275,16 @@ class Color:
       (30.0, 1.0, 1.0)
       >>> clr_1.lab
       (66.95182379630494, 0.4308396497520478, 0.7396923149088841)
+
+    To find the difference between one color and another:
+
+      >>> clr_2 = Color((0.6, 0.6, 0.6), 0.6)
+      >>> clr_1 - clr_2
+      (0.4, -0.09999999999999998, -0.6, 0.4)
+
+    There are also methods to darken, lighten, saturate, desaturate and
+    change the hue of a Color instance, as well as copy existing Color
+    instances.
     '''
 
     def __init__(self, color, alpha=1, *, mode='rgb', wref=DEFAULT_WREF):
@@ -312,6 +322,7 @@ class Color:
                 except ValueError:
                     raise TypeError('color must be a valid hex code')
             elif mode == 'name':
+                color = color.lower()
                 if color not in NAMED_COLOR:
                     raise TypeError('color must be a valid html color name')
             rgb_tuple = html_to_rgb(color)
@@ -343,9 +354,11 @@ class Color:
         self._wref = wref
 
     def __ne__(self, other):
+
         return not self.__eq__(other)
 
     def __eq__(self, other):
+
         try:
             if isinstance(other, Color):
                 return (self.rgb == other.rgb) and (self.a == other.a)
@@ -358,6 +371,7 @@ class Color:
             return False
 
     def __sub__(self, other):
+
         dr = self.r - other.r
         dg = self.g - other.g
         db = self.b - other.b
@@ -365,6 +379,7 @@ class Color:
         return dr, dg, db, da
 
     def __repr__(self):
+
         return str(self.rgba)
 
     def __str__(self):
@@ -379,13 +394,20 @@ class Color:
         return '({}, {}, {}, {})'.format(*self.rgba)
 
     def __iter__(self):
+
         return iter(self.rgba)
 
     def __len__(self):
+
         return 4
 
     @property
     def rgb(self):
+
+        '''\
+        Return the internal RGB representation of this color as a 3-tuple
+        '''
+
         return self.r, self.g, self.b
 
     @rgb.setter
@@ -404,6 +426,11 @@ class Color:
 
     @property
     def rgba(self):
+
+        '''\
+        Return the internal RGBA representation of this color as a 4-tuple
+        '''
+
         return self.rgb + (self.a,)
 
     @rgba.setter
@@ -422,57 +449,68 @@ class Color:
 
     @property
     def red(self):
+
+        '''\
+        An alias for the r attribute of a Color instance
+        NB. This attribute cannot be used to set the r component of a Color
+        '''
+
         return self.r
 
     @property
     def blue(self):
+
+        '''\
+        An alias for the b attribute of a Color instance
+        NB. This attribute cannot be used to set the b component of a Color
+        '''
+
         return self.b
 
     @property
     def green(self):
+
+        '''\
+        An alias for the g attribute of a Color instance
+        NB. This attribute cannot be used to set the g component of a Color
+        '''
+
         return self.g
 
     @property
     def alpha(self):
+
+        '''\
+        An alias for the a attribute of a Color instance
+        NB. This attribute cannot be used to set the a component of a Color
+        '''
+
         return self.a
 
     @property
     def wref(self):
+
+        '''\
+        The white reference of a Color instance
+        This value is only used when converting to and from the L*a*b* color
+        space
+        '''
+
         return self._wref
 
     @wref.setter
     def wref(self, wref):
 
         '''\
-        Create a new instance based on this one with a new white reference.
+        Set the white reference of this Color instance
+
+        If the new white reference is different to the existing one it will
+        cause the internal RGB representation to change according to the new
+        value
 
         Parameters:
           :wref:
-            The whitepoint reference.
-          :labAsRef:
-            If True, the L*a*b* values of the current instance are used as reference
-            for the new color; otherwise, the RGB values are used as reference.
-
-        Returns:
-          A grapefruit.Color instance.
-
-        >>> c = Color.NewFromRgb(1.0, 0.5, 0.0, 1.0, Color.WHITE_REFERENCE['std_D65'])
-
-        >>> c2 = c.ColorWithWhiteRef(Color.WHITE_REFERENCE['sup_D50'])
-        >>> c2.rgb
-        (1.0, 0.5, 0.0)
-        >>> '(%g, %g, %g)' % c2.whiteRef
-        '(0.96721, 1, 0.81428)'
-
-        >>> c2 = c.ColorWithWhiteRef(Color.WHITE_REFERENCE['sup_D50'], labAsRef=True)
-        >>> '(%g, %g, %g)' % c2.rgb
-        '(1.01463, 0.490339, -0.148131)'
-        >>> '(%g, %g, %g)' % c2.whiteRef
-        '(0.96721, 1, 0.81428)'
-        >>> '(%g, %g, %g)' % c.lab
-        '(66.9518, 0.43084, 0.739692)'
-        >>> '(%g, %g, %g)' % c2.lab
-        '(66.9518, 0.43084, 0.739693)'
+            The new white reference
         '''
 
         l, a, b = rgb_to_lab(*self.rgb, wref=self._wref)
@@ -481,25 +519,56 @@ class Color:
 
     @property
     def hsl(self):
+
+        '''\
+        Provide an hsl representation of this Color
+
+        Returns:
+          The RGB representation of the Color converted to the hsl color space
+        '''
+
         return rgb_to_hsl(*self.rgb)
 
     @property
     def h(self):
+
+        '''\
+        A shortcut to obtaining the hue element of the hsl tuple
+        for this Color
+        '''
+
         h, _, _ = self.hsl
         return h
 
     @property
     def s(self):
+
+        '''\
+        A shortcut to obtaining the saturation element of the hsl tuple
+        for this Color
+        '''
+
         _, s, _ = self.hsl
         return s
 
     @property
     def l(self):
+
+        '''\
+        A shortcut to obtaining the lightness element of the hsl tuple
+        for this Color
+        '''
+
         _, _, l = self.hsl
         return l
 
     @property
     def hue(self):
+
+        '''\
+        An alias
+        '''
+
         return self.h
 
     @hue.setter
@@ -521,7 +590,7 @@ class Color:
         (60, 1, 0.5)
         '''
 
-        _, s, l = rgb_to_hsl(self.rgb)
+        _, s, l = rgb_to_hsl(*self.rgb)
         self.rgb = hsl_to_rgb(h, s, l)
 
     @property
@@ -551,7 +620,7 @@ class Color:
         (30, 0.5, 0.5)
         '''
 
-        h, _, l = rgb_to_hsl(self.rgb)
+        h, _, l = rgb_to_hsl(*self.rgb)
         self.rgb = hsl_to_rgb(h, s, l)
 
     @property
@@ -577,7 +646,7 @@ class Color:
         (30, 1, 0.25)
         '''
 
-        h, s, _ = rgb_to_hsl(self.rgb)
+        h, s, _ = rgb_to_hsl(*self.rgb)
         self.rgb = hsl_to_rgb(h, s, l)
 
     @property
@@ -647,6 +716,23 @@ class Color:
                 return x
         *rgb, a = tuple(clamp(v, 0, 1) for v in self)
         return Color(rgb, a)
+
+    @staticmethod
+    def copy(color):
+
+        '''\
+        Create a new Color instance from an existing one.
+
+        Parameters:
+          :color:
+            The color to be copied
+
+        Returns:
+          A new Color instance with the same interal RGBA representation as the
+          color parameter
+        '''
+
+        return Color(color.rgb, color.a, wref=color.wref)
 
     def darken(self, level):
 

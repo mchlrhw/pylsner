@@ -1,4 +1,9 @@
 from .core import App
 
 
-App().run()
+def main():
+    App().run()
+
+
+if __name__ == '__main__':
+    main()

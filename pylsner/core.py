@@ -219,7 +219,7 @@ class App:
 
     @staticmethod
     def find_configs():
-        search_paths = ['~', '/etc', './etc']
+        search_paths = ['~', '/etc', '/usr/local/etc', './etc']
         for root in search_paths:
             root = os.path.normpath(os.path.expanduser(root))
             if os.path.isdir(os.path.join(root, 'pylsner')):

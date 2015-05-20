@@ -109,8 +109,8 @@ class BoundingBox:
         return rep.format(self.width, self.height, self.top_left)
 
 
-def load_plugin(plugin_type, plugin_name):
-    mod_str = 'pylsner.plugins.{}.{}'.format(plugin_type, plugin_name)
+def load_plugin(plugin_name):
+    mod_str = 'pylsner.plugins.{}'.format(plugin_name)
     module = __import__(mod_str, locals(), globals(), ['Plugin'])
     return module.Plugin
 

@@ -6,30 +6,60 @@ from .core import BoundingBox
 from .core import Coord
 
 
-class Metric:
+class BasePlugin:
 
-    def __init__(self, unit):
-        self.unit = unit
-        self.store = MetricStore()
+    ...
 
-    def set_limits(self, minimum=None, maximum=None):
-        if minimum or minimum == 0:
-            self._min = minimum
-        if maximum or maximum == 0:
-            self._max = maximum
-        assert(self._max >= self._min)
-        self._range = self._max - self._min
 
-    def _refresh(self, cnt, value):
-        self.store._refresh(cnt)
-        self.refresh(value)
+class StatefulPlugin(BasePlugin):
 
-    def refresh(self, value):
+    def refresh(self, cnt, value):
+
         ...
+
+
+class DrawablePlugin(BasePlugin):
+
+    def redraw(self, ctx, value):
+
+        ...
+
+
+class Metric(StatefulPlugin):
+
+    def __init__(self, **kwargs):
+
+        self.unit = kwargs.pop('unit')
+        self.raw_max = 0
+        self.raw_min = 0
+        self.store = MetricStore()
+        self.store.register(self)
+        self.setup(kwargs)
+
+    @property
+    def raw_range(self):
+
+        if self.raw_max > self.raw_min:
+            return self.raw_max - self.raw_min
+        else:
+            return self.raw_min - self.raw_max
 
     @property
     def value(self):
-        return (self._curr - self._min) / self._range
+
+        return (self.raw_value - self.raw_min) / self.raw_range
+
+    def setup(self, **kwargs):
+
+        ...
+
+    def source(self):
+
+        ...
+
+    def get_source(self, cnt):
+
+        return self.store.get_source(self, cnt)
 
 
 class MetricStore:
@@ -38,16 +68,17 @@ class MetricStore:
 
     def __init__(self):
         self.__dict__ = self._shared_state
-        self.refresh_cnt = 0
-        self.refresh(self.refresh_cnt)
+        self.registry = {}
 
-    def _refresh(self, cnt):
-        if cnt != self.refresh_cnt:
-            self.refresh_cnt = cnt
-            self.refresh(cnt)
+    def register(self, plugin):
+        if plugin.__name__ not in self.registry:
+            new_entry = {'refresh_cnt': 0, 'source': plugin.source}
+            self.registry[plugin.__name__] = new_entry
 
-    def refresh(self, cnt):
-        ...
+    def get_source(self, plugin, cnt):
+        if cnt != self.registry[plugin.__name__]['refresh_cnt']:
+            self.registry[plugin.__name__]['refresh_cnt'] = cnt
+            return self.registry[plugin.__name__]['source']
 
 
 class Indicator:

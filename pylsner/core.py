@@ -127,8 +127,7 @@ class Widget(Window):
         self.drawable_plugins = []
         self.stateful_plugins = []
         for plugin_type, plugin_spec in kwargs.items():
-            plugin_dir = plugin_type + 's'
-            Plugin = load_plugin(plugin_dir, plugin_spec.pop('plugin'))
+            Plugin = load_plugin(plugin_spec.pop('plugin'))
             plugin = Plugin(**plugin_spec)
             self.plugins.append(plugin)
 

@@ -457,7 +457,8 @@ class Color:
 
         return self.r
 
-    @red.setter(self, r):
+    @red.setter
+    def red(self, r):
 
         self.r = r
 

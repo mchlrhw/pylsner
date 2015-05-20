@@ -14,9 +14,7 @@ config = {
     'license': 'MIT',
     'packages': [
         'pylsner',
-        'pylsner/plugins/fills',
-        'pylsner/plugins/indicators',
-        'pylsner/plugins/metrics',
+        'pylsner/plugins',
     ],
     'data_files': [
         ('etc/pylsner', [

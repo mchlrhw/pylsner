@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+
 '''\
-A module to perform quick and easy to use color conversions
+A module to perform quick and easy-to-use color conversions
 
 Code for this module originates from the grapefruit color manipulation
 package by Xavier Basty and Christian Oudard (xav and christian-oudard
@@ -385,133 +386,117 @@ class Color:
     def __str__(self):
 
         '''\
-        A string representing this Color instance.
+        A string representing this Color instance
 
         Returns:
-          The RGBA representation of this Color instance.
+          The RGBA representation of this Color instance
         '''
 
         return '({}, {}, {}, {})'.format(*self.rgba)
 
     def __iter__(self):
 
+        '''\
+        Iterate over the RGBA elements of this color
+
+        Returns:
+          An iterator over the RGBA elements
+        '''
+
         return iter(self.rgba)
 
     def __len__(self):
 
+        '''\
+        Get the length of this Color
+
+        Returns:
+          The length of this color, which is always 4 (RGBA)
+        '''
+
         return 4
+
+    def __copy__(self):
+
+        '''\
+        Create a new Color instance from this one
+
+        Parameters:
+          :color:
+            The color to be copied
+
+        Returns:
+          A new Color instance with the same interal RGBA
+          representation as this one
+        '''
+
+        return Color(self.rgb, self.a, wref=self.wref)
 
     @property
     def rgb(self):
-
-        '''\
-        Return the internal RGB representation of this color as a 3-tuple
-        '''
 
         return self.r, self.g, self.b
 
     @rgb.setter
     def rgb(self, rgb_tuple):
-
-        '''\
-        Set the individual RGB values of this color by passing a
-        preprepared RGB tuple
-
-        Parameters:
-          :rgb_tuple:
-            A 3-tuple of RGB values (each [0...1])
-        '''
         
         self.r, self.g, self.b = rgb_tuple
 
     @property
     def rgba(self):
 
-        '''\
-        Return the internal RGBA representation of this color as a 4-tuple
-        '''
-
         return self.rgb + (self.a,)
 
     @rgba.setter
     def rgba(self, rgba_tuple):
-
-        '''\
-        Set the individual RGBA values of this color by passing a
-        preprepared RGBA tuple
-
-        Parameters:
-          :rgba_tuple:
-            A 4-tuple of RGBA values (each [0...1])
-        '''
         
         self.r, self.g, self.b, self.a = rgba_tuple
 
     @property
     def red(self):
 
-        '''\
-        An alias for the r attribute of a Color instance
-        NB. This attribute cannot be used to set the r component of a Color
-        '''
-
         return self.r
+
+    @red.setter(self, r):
+
+        self.r = r
 
     @property
     def blue(self):
 
-        '''\
-        An alias for the b attribute of a Color instance
-        NB. This attribute cannot be used to set the b component of a Color
-        '''
-
         return self.b
+
+    @blue.setter
+    def blue(self, b):
+
+        self.b = b
 
     @property
     def green(self):
 
-        '''\
-        An alias for the g attribute of a Color instance
-        NB. This attribute cannot be used to set the g component of a Color
-        '''
-
         return self.g
+
+    @green.setter
+    def green(self, g):
+
+        self.g = g
 
     @property
     def alpha(self):
 
-        '''\
-        An alias for the a attribute of a Color instance
-        NB. This attribute cannot be used to set the a component of a Color
-        '''
-
         return self.a
+
+    @alpha.setter
+    def alpha(self, a):
+        self.a = a
 
     @property
     def wref(self):
-
-        '''\
-        The white reference of a Color instance
-        This value is only used when converting to and from the L*a*b* color
-        space
-        '''
 
         return self._wref
 
     @wref.setter
     def wref(self, wref):
-
-        '''\
-        Set the white reference of this Color instance
-
-        If the new white reference is different to the existing one it will
-        cause the internal RGB representation to change according to the new
-        value
-
-        Parameters:
-          :wref:
-            The new white reference
-        '''
 
         l, a, b = rgb_to_lab(*self.rgb, wref=self._wref)
         self.rgb = lab_to_rgb(l, a, b, wref=wref)
@@ -520,134 +505,78 @@ class Color:
     @property
     def hsl(self):
 
-        '''\
-        Provide an hsl representation of this Color
-
-        Returns:
-          The RGB representation of the Color converted to the hsl color space
-        '''
-
         return rgb_to_hsl(*self.rgb)
+
+    @hsl.setter
+    def hsl(self, hsl_tuple):
+
+        self.rgb = hsl_to_rgb(*hsl_tuple)
 
     @property
     def h(self):
 
-        '''\
-        A shortcut to obtaining the hue element of the hsl tuple
-        for this Color
-        '''
-
         h, _, _ = self.hsl
         return h
+
+    @h.setter
+    def h(self, h):
+
+        _, s, l = rgb_to_hsl(*self.rgb)
+        self.rgb = hsl_to_rgb(h, s, l)
 
     @property
     def s(self):
 
-        '''\
-        A shortcut to obtaining the saturation element of the hsl tuple
-        for this Color
-        '''
-
         _, s, _ = self.hsl
         return s
+
+    @s.setter
+    def s(self, s):
+
+        h, _, l = rgb_to_hsl(*self.rgb)
+        self.rgb = hsl_to_rgb(h, s, l)
 
     @property
     def l(self):
 
-        '''\
-        A shortcut to obtaining the lightness element of the hsl tuple
-        for this Color
-        '''
-
         _, _, l = self.hsl
         return l
 
+    @l.setter
+    def l(self, l):
+
+        h, s, _ = rgb_to_hsl(*self.rgb)
+        self.rgb = hsl_to_rgb(h, s, l)
+
     @property
     def hue(self):
-
-        '''\
-        An alias
-        '''
 
         return self.h
 
     @hue.setter
     def hue(self, h):
 
-        '''\
-        Create a new instance based on this one with a new hue.
-
-        Parameters:
-          :hue:
-            The hue of the new color [0...360].
-
-        Returns:
-          A grapefruit.Color instance.
-
-        >>> Color.NewFromHsl(30, 1, 0.5).ColorWithHue(60)
-        (1.0, 1.0, 0.0, 1.0)
-        >>> Color.NewFromHsl(30, 1, 0.5).ColorWithHue(60).hsl
-        (60, 1, 0.5)
-        '''
-
-        _, s, l = rgb_to_hsl(*self.rgb)
-        self.rgb = hsl_to_rgb(h, s, l)
+        self.h = h
 
     @property
     def saturation(self):
+
         return self.s
 
     @saturation.setter
     def saturation(self, s):
 
-        '''\
-        Create a new instance based on this one with a new saturation value.
-
-        .. note::
-
-          The saturation is defined for the HSL mode.
-
-        Parameters:
-          :saturation:
-            The saturation of the new color [0...1].
-
-        Returns:
-          A grapefruit.Color instance.
-
-        >>> Color.NewFromHsl(30, 1, 0.5).ColorWithSaturation(0.5)
-        (0.75, 0.5, 0.25, 1.0)
-        >>> Color.NewFromHsl(30, 1, 0.5).ColorWithSaturation(0.5).hsl
-        (30, 0.5, 0.5)
-        '''
-
-        h, _, l = rgb_to_hsl(*self.rgb)
-        self.rgb = hsl_to_rgb(h, s, l)
+        self.s = s
 
     @property
     def lightness(self):
+
         return self.l
 
     @lightness.setter
     def lightness(self, l):
 
-        '''\
-        Create a new instance based on this one with a new lightness value.
-
-        Parameters:
-          :lightness:
-            The lightness of the new color [0...1].
-
-        Returns:
-          A grapefruit.Color instance.
-
-        >>> Color.NewFromHsl(30, 1, 0.5).ColorWithLightness(0.25)
-        (0.5, 0.25, 0.0, 1.0)
-        >>> Color.NewFromHsl(30, 1, 0.5).ColorWithLightness(0.25).hsl
-        (30, 1, 0.25)
-        '''
-
-        h, s, _ = rgb_to_hsl(*self.rgb)
-        self.rgb = hsl_to_rgb(h, s, l)
+        self.l = l
 
     @property
     def cmy(self):
@@ -696,15 +625,21 @@ class Color:
     def is_legal(self):
 
         '''\
-        Boolean indicating whether the color is within the legal gamut.
+        Determine whether the color is legal
+
+        Returns:
+          A boolean indicating whether the color is within the legal gamut
         '''
 
         return all(0 <= v <= 1 for v in self)
 
-    def nearest_legal(self):
+    def make_legal(self):
 
         '''\
-        Get the nearest legal color to this one
+        Ensure this Color instance is legal
+
+        If it isn't, set its r, g, b and a attributes to
+        the nearest legal values
         '''
 
         def clamp(x, lo, hi):
@@ -714,43 +649,14 @@ class Color:
                 return hi
             else:
                 return x
-        *rgb, a = tuple(clamp(v, 0, 1) for v in self)
-        return Color(rgb, a)
 
-    @staticmethod
-    def copy(color):
-
-        '''\
-        Create a new Color instance from an existing one.
-
-        Parameters:
-          :color:
-            The color to be copied
-
-        Returns:
-          A new Color instance with the same interal RGBA representation as the
-          color parameter
-        '''
-
-        return Color(color.rgb, color.a, wref=color.wref)
-
+        if not self.is_legal():
+            *rgb, a = tuple(clamp(v, 0, 1) for v in self)
+            self.rgba = rgb + (a,)
+            
     def darken(self, level):
 
         '''\
-        Create a new instance based on this one but darker.
-
-        Parameters:
-          :level:
-            The amount by which the color should be darkened to produce
-            the new one [0...1].
-
-        Returns:
-          A grapefruit.Color instance.
-
-        >>> Color.NewFromHsl(30, 1, 0.5).DarkerColor(0.25)
-        (0.5, 0.25, 0.0, 1.0)
-        >>> Color.NewFromHsl(30, 1, 0.5).DarkerColor(0.25).hsl
-        (30, 1, 0.25)
         '''
 
         level = abs(level)
@@ -760,20 +666,6 @@ class Color:
     def lighten(self, level):
 
         '''\
-        Create a new instance based on this one but lighter.
-
-        Parameters:
-          :level:
-            The amount by which the color should be lightened to produce
-            the new one [0...1].
-
-        Returns:
-          A grapefruit.Color instance.
-
-        >>> Color.NewFromHsl(30, 1, 0.5).LighterColor(0.25)
-        (1.0, 0.75, 0.5, 1.0)
-        >>> Color.NewFromHsl(30, 1, 0.5).LighterColor(0.25).hsl
-        (30, 1, 0.75)
         '''
 
         level = abs(level)
@@ -783,20 +675,6 @@ class Color:
     def saturate(self, level):
 
         '''\
-        Create a new instance based on this one but more saturated.
-
-        Parameters:
-          :level:
-            The amount by which the color should be saturated to produce
-            the new one [0...1].
-
-        Returns:
-          A grapefruit.Color instance.
-
-        >>> Color.NewFromHsl(30, 0.5, 0.5).Saturate(0.25)
-        (0.875, 0.5, 0.125, 1.0)
-        >>> Color.NewFromHsl(30, 0.5, 0.5).Saturate(0.25).hsl
-        (30, 0.75, 0.5)
         '''
 
         level = abs(level)
@@ -806,20 +684,6 @@ class Color:
     def desaturate(self, level):
 
         '''\
-        Create a new instance based on this one but less saturated.
-
-        Parameters:
-          :level:
-            The amount by which the color should be desaturated to produce
-            the new one [0...1].
-
-        Returns:
-            A grapefruit.Color instance.
-
-        >>> Color.NewFromHsl(30, 0.5, 0.5).Desaturate(0.25)
-        (0.625, 0.5, 0.375, 1.0)
-        >>> Color.NewFromHsl(30, 0.5, 0.5).Desaturate(0.25).hsl
-        (30, 0.25, 0.5)
         '''
 
         level = abs(level)
@@ -829,7 +693,8 @@ class Color:
 
 def rgb_to_hsl(r, g, b):
 
-    '''Convert the color from RGB coordinates to HSL.
+    '''\
+    Convert the color from RGB coordinates to HSL.
 
     Parameters:
       :r:
@@ -875,6 +740,7 @@ def rgb_to_hsl(r, g, b):
 
 
 def _hue_to_rgb(n1, n2, h):
+
     h %= 6
     if h < 1:
         return n1 + ((n2 - n1) * h)
@@ -922,7 +788,7 @@ def hsl_to_rgb(h, s, l):
     g = _hue_to_rgb(n1, n2, h)
     b = _hue_to_rgb(n1, n2, h - 2)
 
-    return (r, g, b)
+    return r, g, b
 
 
 def rgb_to_hsv(r, g, b):

@@ -1,10 +1,7 @@
 #!/usr/bin/python3
 
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup
 
 
 config = {
@@ -15,7 +12,25 @@ config = {
     'author': 'mrmrwat',
     'author_email': 'mrmrwat@github.com',
     'license': 'MIT',
-    'packages': ['pylsner'],
+    'packages': [
+        'pylsner',
+        'pylsner/plugins/fills',
+        'pylsner/plugins/indicators',
+        'pylsner/plugins/metrics',
+    ],
+    'data_files': [
+        ('etc/pylsner', [
+            'etc/pylsner/config.yml',
+            'etc/pylsner/widgets.yml',
+        ])
+    ],
+    'zip_safe': False,
+    'entry_points': {
+        'console_scripts': [
+            'pylsner = pylsner.__main__:main',
+        ],
+    },
 }
+
 
 setup(**config)

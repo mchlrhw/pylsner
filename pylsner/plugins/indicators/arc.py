@@ -1,8 +1,9 @@
 import cairo
 import math
 
-from pylsner import gui
-from pylsner.plugins import Indicator
+from pylsner.core import BoundingBox
+from pylsner.core import Coord
+from pylsner.plugin import Indicator
 
 
 class Arc(Indicator):
@@ -32,13 +33,13 @@ class Arc(Indicator):
     @property
     def boundary(self):
         max_radius = self.radius + (self.width / 2)
-        top_left = gui.Coord(self.position.x - max_radius,
-                             self.position.y + max_radius,
-                            )
-        btm_rght = gui.Coord(self.position.x + max_radius,
-                             self.position.y - max_radius,
-                            )
-        return gui.BoundingBox(top_left, btm_rght)
+        top_left = Coord(self.position.x - max_radius,
+                         self.position.y + max_radius,
+                        )
+        btm_rght = Coord(self.position.x + max_radius,
+                         self.position.y - max_radius,
+                        )
+        return BoundingBox(top_left, btm_rght)
 
     def redraw(self, ctx, value):
         if self.clockwise:

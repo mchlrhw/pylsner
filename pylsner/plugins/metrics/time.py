@@ -2,7 +2,7 @@ import calendar
 
 from datetime import datetime
 
-from pylsner.plugins import Metric, MetricStore
+from pylsner.plugin import Metric, MetricStore
 
 
 class Time(Metric):

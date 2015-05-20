@@ -24,7 +24,7 @@
     radius: 122
   fill:
     plugin: transition
-    mode: names
+    mode: name
     colors:
       0: red
       1: yellow

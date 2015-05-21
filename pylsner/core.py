@@ -126,31 +126,35 @@ class Widget(Window):
         self.plugins = []
         self.drawable_plugins = []
         self.stateful_plugins = []
-        for plugin_type, plugin_spec in kwargs.items():
+
+        from .plugin import DrawablePlugin
+        from .plugin import StatefulPlugin
+
+        for plugin_role, plugin_spec in kwargs.items():
             Plugin = load_plugin(plugin_spec.pop('plugin'))
             plugin = Plugin(**plugin_spec)
             self.plugins.append(plugin)
 
-            if hasattr(plugin, 'redraw'):
-                self.drawable_plugins.append(plugin)
-            if plugin_type in ['metric', 'fill']:
-                setattr(self, plugin_type, plugin)
-                if plugin_type == 'fill':
+            if plugin_role == 'metric':
+                setattr(self, plugin_role, plugin)
+            else:
+                if plugin_role == 'fill':
+                    setattr(self, plugin_role, plugin)
+                if isinstance(plugin, DrawablePlugin):
+                    self.drawable_plugins.append(plugin)
+                elif isinstance(plugin, StatefulPlugin):
                     self.stateful_plugins.append(plugin)
-            elif hasattr(plugin, 'refresh'):
-                self.stateful_plugins.append(plugin)
+        self.stateful_plugins.insert(0, self.metric)
 
         boundary = BoundingBox()
         for plugin in self.drawable_plugins:
-            if hasattr(plugin, 'boundary'):
-                boundary.encompass(plugin.boundary)
+            boundary.encompass(plugin.boundary)
         self.resize(*boundary.dimensions)
 
-        for plugin in self.plugins:
-            if hasattr(plugin, 'position'):
-                x = plugin.position.x + self.origin.x
-                y = plugin.position.y + self.origin.y
-                plugin.position = Coord(x, y)
+        for plugin in self.drawable_plugins:
+            x = plugin.position.x + self.origin.x
+            y = plugin.position.y + self.origin.y
+            plugin.position = Coord(x, y)
 
         self.show_all()
 
@@ -170,7 +174,6 @@ class Widget(Window):
 
     def refresh(self, cnt=0):
         if cnt % self.refresh_rate == 0:
-            self.metric.refresh(cnt, self.value)
             for plugin in self.stateful_plugins:
                 plugin.refresh(cnt, self.value)
             self.queue_draw()

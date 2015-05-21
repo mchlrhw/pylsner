@@ -31,6 +31,11 @@ class StatefulPlugin(BasePlugin):
 
 class DrawablePlugin(BasePlugin):
 
+    def __init__(self, **kwargs):
+
+        self.position = Coord(*kwargs.pop('position', (0, 0)))
+        super().__init__(**kwargs)
+
     def redraw(self, ctx, value):
 
         ...
@@ -100,14 +105,8 @@ class Indicator(DrawablePlugin):
         self.length = kwargs.pop('length', 100)
         self.width = kwargs.pop('width', 10)
         self.orientation = kwargs.pop('orientation', 0)
-        self.position = Coord(*kwargs.pop('position', (0, 0)))
         self.background = kwargs.pop('background', True)
         super().__init__(**kwargs)
-
-    @property
-    def boundary(self):
-
-        return BoundingBox()
 
     def redraw(self, ctx, value):
 

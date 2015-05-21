@@ -23,12 +23,7 @@ class Solid(Fill):
         '''
 
         color = Color(color, mode=mode)
-        self._pattern = cairo.SolidPattern(*color.rgb, alpha=color.a)
-
-    @property
-    def pattern(self):
-
-        return self._pattern
+        self.pattern = cairo.SolidPattern(*color.rgb, alpha=color.a)
 
 
 Plugin = Solid

@@ -8,18 +8,8 @@ from pylsner.plugin import Indicator
 
 class Arc(Indicator):
 
-    def __init__(self,
-                 length=100,
-                 width=10,
-                 orientation=0,
-                 position=[0, 0],
-                 radius=100,
-                 clockwise=True,
-                 background=True,
-                ):
-        length = math.radians(360) * (length / 100)
-        super().__init__(length, width, orientation, position, background)
-
+    def setup(self, radius=100, clockwise=True):
+        self.length = math.radians(360) * (self.length / 100)
         self.radius = radius
         self.clockwise = clockwise
 

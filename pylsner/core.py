@@ -164,21 +164,15 @@ class Widget(Window):
     @property
     def pattern(self):
         try:
-            return self.fill.pattern
+            return self.fill.value
         except AttributeError:
             return cairo.SolidPattern(1, 1, 1)
 
     def refresh(self, cnt=0):
         if cnt % self.refresh_rate == 0:
-            try:
-                self.metric._refresh(cnt, self.value)
-            except AttributeError:
-                self.metric.refresh(cnt, self.value)
+            self.metric.refresh(cnt, self.value)
             for plugin in self.stateful_plugins:
-                try:
-                    plugin._refresh(cnt, self.value)
-                except AttributeError:
-                    plugin.refresh(cnt, self.value)
+                plugin.refresh(cnt, self.value)
             self.queue_draw()
 
     def redraw(self, _, ctx):

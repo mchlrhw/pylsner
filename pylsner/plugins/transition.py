@@ -8,13 +8,13 @@ from pylsner.plugin import Fill
 
 class Transition(Fill):
 
-    def __init__(self, colors={0: [1, 1, 1]}, mode='rgb'):
+    def setup(self, colors={0: [1, 1, 1]}, mode='rgb'):
         for stop, color in colors.items():
             color = Color(color, mode=mode)
             colors[stop] = color
 
         if not colors:
-            self.pattern = cairo.SolidPattern(1, 1, 1)
+            self._pattern = cairo.SolidPattern(1, 1, 1)
         elif len(colors) == 1:
             _, color = colors.popitem()
             self.pattern = cairo.SolidPattern(*color.rgba)

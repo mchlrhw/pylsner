@@ -64,6 +64,7 @@ class Time(Metric):
         )
 
     def _set_month(self, now):
+        self.raw_max = calendar.monthrange(now.year, now.month)[1]
         self.raw_value = (
             (now.day - 1)
             + now.hour / 24
@@ -71,6 +72,10 @@ class Time(Metric):
         )
 
     def _set_year(self, now):
+        if not calendar.isleap(now.year):
+            self.raw_max = 365
+        else:
+            self.raw_max = 366
         self.raw_value = (
             (now.timetuple().tm_yday - 1)
             + now.hour / 24
@@ -83,14 +88,12 @@ class Time(Metric):
             + ((now.timetuple().tm_yday - 1) / 365)
         )
 
-    def refresh(self, cnt, value):
-        source = self.get_source(cnt)
-        if source:
-            now = source()
-        self._set_raw_val(now)
-
-    def source(self):
+    def source(self, *args):
         return datetime.now()
+
+    def refresh(self, cnt, value):
+        now = self.stored_source(cnt)
+        self._set_raw_val(now)
 
 
 Plugin = Time

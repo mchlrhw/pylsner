@@ -10,10 +10,10 @@ class Solid(Fill):
     A solid colored fill that isn't dependent on the value of a widget
     '''
 
-    def __init__(self, color=[1, 1, 1], mode='rgb'):
+    def setup(self, color=[1, 1, 1], mode='rgb'):
 
         '''\
-        Create a new Solid fill instance
+        Set up a new Solid plugin instance
 
         Parameters:
           :color:
@@ -23,7 +23,12 @@ class Solid(Fill):
         '''
 
         color = Color(color, mode=mode)
-        self.pattern = cairo.SolidPattern(*color.rgb, alpha=color.a)
+        self._pattern = cairo.SolidPattern(*color.rgb, alpha=color.a)
+
+    @property
+    def pattern(self):
+
+        return self._pattern
 
 
 Plugin = Solid

@@ -8,10 +8,21 @@ from .core import Coord
 
 class BasePlugin:
 
-    ...
+    def __init__(self, **kwargs):
+
+        self.setup(**kwargs)
+
+    def setup(self, **kwargs):
+
+        ...
 
 
 class StatefulPlugin(BasePlugin):
+
+    @property
+    def value(self):
+
+        ...
 
     def refresh(self, cnt, value):
 
@@ -29,12 +40,11 @@ class Metric(StatefulPlugin):
 
     def __init__(self, **kwargs):
 
-        self.unit = kwargs.pop('unit')
+        self.unit = kwargs.pop('unit', '')
         self.raw_max = 0
         self.raw_min = 0
-        self.store = MetricStore()
-        self.store.register(self)
-        self.setup(kwargs)
+        self.store = SourceStore()
+        super().__init__(**kwargs)
 
     @property
     def raw_range(self):
@@ -49,65 +59,68 @@ class Metric(StatefulPlugin):
 
         return (self.raw_value - self.raw_min) / self.raw_range
 
-    def setup(self, **kwargs):
+    def source(self, *args):
 
         ...
 
-    def source(self):
+    def stored_source(self, cnt, *args):
 
-        ...
-
-    def get_source(self, cnt):
-
-        return self.store.get_source(self, cnt)
+        return self.store.source(self, cnt, *args)
 
 
-class MetricStore:
+class SourceStore:
 
-    _shared_state = {}
+    registry = {}
 
-    def __init__(self):
-        self.__dict__ = self._shared_state
-        self.registry = {}
+    def register(self, plugin, *args):
 
-    def register(self, plugin):
-        if plugin.__name__ not in self.registry:
-            new_entry = {'refresh_cnt': 0, 'source': plugin.source}
-            self.registry[plugin.__name__] = new_entry
+        key = type(plugin)
+        if key not in self.registry:
+            new_entry = {
+                'refresh_cnt': 0,
+                'stored_source': plugin.source(*args),
+            }
+            self.registry[key] = new_entry
 
-    def get_source(self, plugin, cnt):
-        if cnt != self.registry[plugin.__name__]['refresh_cnt']:
-            self.registry[plugin.__name__]['refresh_cnt'] = cnt
-            return self.registry[plugin.__name__]['source']
+    def source(self, plugin, cnt, *args):
+
+        key = type(plugin)
+        if key not in self.registry:
+            self.register(plugin, *args)
+        if cnt != self.registry[key]['refresh_cnt']:
+            self.registry[key]['refresh_cnt'] = cnt
+            self.registry[key]['stored_source'] = plugin.source(*args)
+        return self.registry[key]['stored_source']
 
 
-class Indicator:
+class Indicator(DrawablePlugin):
 
-    def __init__(self, length, width, orientation, position, background):
-        self.length = length
-        self.width = width
-        self.orientation = orientation
-        self.position = Coord(*position)
-        self.background = background
+    def __init__(self, **kwargs):
+
+        self.length = kwargs.pop('length', 100)
+        self.width = kwargs.pop('width', 10)
+        self.orientation = kwargs.pop('orientation', 0)
+        self.position = Coord(*kwargs.pop('position', (0, 0)))
+        self.background = kwargs.pop('background', True)
+        super().__init__(**kwargs)
 
     @property
     def boundary(self):
+
         return BoundingBox()
 
     def redraw(self, ctx, value):
+
         ...
 
 
-class Fill:
+class Fill(StatefulPlugin):
 
-    def __init__(self):
+    def setup(self):
+
         self.pattern = cairo.SolidPattern(1, 1, 1)
 
-    def refresh(self, cnt, value):
-        ...
+    @property
+    def value(self):
 
-
-def load_plugin(plugin_type, plugin_name):
-    mod_str = 'pylsner.plugins.{}.{}'.format(plugin_type, plugin_name)
-    module = __import__(mod_str, locals(), globals(), ['Plugin'])
-    return module.Plugin
+        return self.pattern

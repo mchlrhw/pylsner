@@ -120,6 +120,13 @@ class Widget(Window):
     def __init__(self, **kwargs):
         self.name = kwargs.pop('name', 'default')
         self.refresh_rate = kwargs.pop('refresh_rate', 500)
+        self.smooth = kwargs.pop('smooth', False)
+        if self.smooth:
+            self.locked = False
+            self.saved_rate = self.refresh_rate
+            self.refresh_rate = 50
+            self.intervals = self.saved_rate / self.refresh_rate
+            self.to_value = 0
         self.position = Coord(*kwargs.pop('position', [0, 0]))
         super().__init__(self.name, self.position)
 
@@ -127,6 +134,7 @@ class Widget(Window):
         self.drawable_plugins = []
         self.stateful_plugins = []
 
+        # defered because the plugin module depends on this one
         from .plugin import DrawablePlugin
         from .plugin import StatefulPlugin
 
@@ -161,7 +169,10 @@ class Widget(Window):
     @property
     def value(self):
         try:
-            return self.metric.value
+            if not self.smooth:
+                return self.metric.value
+            else:
+                return self.smooth_value()
         except AttributeError:
             return 0
 
@@ -171,6 +182,23 @@ class Widget(Window):
             return self.fill.value
         except AttributeError:
             return cairo.SolidPattern(1, 1, 1)
+
+    def smooth_value(self):
+        if not self.locked:
+            self.from_value = self.to_value
+            self.to_value = self.metric.value
+            self.lock_tracker = self.intervals
+            self.locked = True
+        else:
+            if self.lock_tracker == self.intervals:
+                self.value_diff = self.to_value - self.from_value
+            if self.lock_tracker >= 1:
+                self.lock_tracker -= 1
+            else:
+                self.locked = False
+            self.from_value += self.value_diff / self.intervals
+            self.from_value = 0 if self.from_value < 0 else self.from_value
+        return self.from_value
 
     def refresh(self, cnt=0):
         if cnt % self.refresh_rate == 0:
